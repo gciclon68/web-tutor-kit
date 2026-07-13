@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Módulo 1 · Mi sitio</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<!-- El acento del módulo se setea con --nav (ver variables en shell.css: --ltv ámbar, --psi violeta, --phi magenta, --lti teal) -->
+<body>
+<div class="app" style="--nav:var(--ltv)">
+
+  <!-- ===== PANEL IZQUIERDO ===== -->
+  <nav class="sidenav">
+    <div class="brand">
+      <div class="eyebrow">Tu proyecto</div>
+      <h1>Título del<br>sitio</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-modulo.html" class="active"><span class="mnum">1</span><span class="mtxt"><b>Módulo 1</b><small>Descripción corta</small></span></a></li>
+    </ul>
+
+    <!-- Navegación de PÁGINAS del módulo (la llena app.js automáticamente desde los .page) -->
+    <div class="sideblock">
+      <div class="pnhead">En este módulo</div>
+      <div id="pagelist"></div>
+      <div class="pnfoot">
+        <div class="pgpos" id="pgpos">1 / 3</div>
+        <div class="pgbtns">
+          <button class="pgbtn" id="prevpg">◀ Anterior<small>—</small></button>
+          <button class="pgbtn" id="nextpg" style="text-align:right">Siguiente ▶<small>—</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">Módulo 1</span>
+    </div>
+  </nav>
+
+  <!-- ===== CONTENIDO: una <article class="page"> por página. app.js muestra una a la vez. ===== -->
+  <main class="content">
+    <div class="pagewrap">
+
+      <article class="page" id="p1" data-label="01" data-title="Primera página">
+        <div class="eyebrow">01 · Sección <span class="bar"></span></div>
+        <h2>Título de la primera página</h2>
+        <p class="lede">Texto de entrada. Cada <code>&lt;article class="page"&gt;</code> es una página; el atributo <code>data-title</code> es lo que se ve en el panel derecho y <code>data-label</code> es el número.</p>
+        <div class="card">
+          <h3>Una tarjeta</h3>
+          <p>Contenido. Tenés clases listas: <code>.card</code>, <code>.grid2</code>, <code>.callout</code>, <code>.eq</code> (fórmulas), <code>.steps</code> (pasos numerados), <code>.readout</code>/<code>.rrow</code> (filas de datos), <code>.exam</code> (recuadro destacado). Mirá el ejemplo <b>espacio-estados</b> del plugin.</p>
+        </div>
+        <div class="callout"><b>Tip.</b> Para gráficos en <code>&lt;canvas&gt;</code> usá el motor <code>PP</code> de <code>assets/plot.js</code> (campo vectorial, trayectorias RK4, ejes). Registrá el dibujo con <code>PP.register(canvas, fn)</code> para que se repinte al mostrar la página o cambiar de tema.</div>
+      </article>
+
+      <article class="page" id="p2" data-label="02" data-title="Segunda página">
+        <div class="eyebrow">02 · Sección <span class="bar"></span></div>
+        <h2>Segunda página</h2>
+        <p class="lede">Se llega con el botón Siguiente, el panel derecho, o la flecha → del teclado.</p>
+        <div class="grid2">
+          <div class="card"><h3>Columna A</h3><p>La grilla <code>.grid2</code> se apila sola en pantallas angostas.</p></div>
+          <div class="card"><h3>Columna B</h3><p>Otro bloque.</p></div>
+        </div>
+      </article>
+
+      <article class="page" id="p3" data-label="03" data-title="Tercera página">
+        <div class="eyebrow">03 · Cierre <span class="bar"></span></div>
+        <h2>Tercera página</h2>
+        <div class="exam">
+          <div class="lead">Recuadro destacado</div>
+          <ol><li>Ideal para resúmenes o "qué recordar".</li><li>Duplicá <code>1-modulo.html</code> como <code>2-modulo.html</code> para más módulos.</li></ol>
+        </div>
+      </article>
+
+    </div>
+  </main>
+</div>
+
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+<!-- JS específico del módulo (gráficos, interactividad) va acá:
+<script>
+(function(){
+  // var cv = document.getElementById("mi-canvas");
+  // PP.register(cv, function(){ var f = PP.fit(cv, 260); if(!f) return; ... });
+})();
+</script>
+-->
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "jolo-plugins",
+  "owner": { "name": "Jolo" },
+  "metadata": {
+    "description": "Marketplace local de plugins propios para Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "tutor-ui",
+      "source": "./plugins/tutor-ui",
+      "description": "Sitios HTML multipágina con navegación por módulos, tema oscuro, paneles ajustables y un tutor de Claude Code embebido (Markdown + LaTeX)."
+    }
+  ]
+}

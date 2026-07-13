@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espacio de Estados · Matriz Fundamental y de Transición</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT 25% -->
+  <nav class="sidenav" style="--nav:var(--ltv)">
+    <div class="brand">
+      <div class="eyebrow">Guía de estudio</div>
+      <h1>Sistemas lineales<br>y espacio de estados</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html" class="active"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa de la serie</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-conceptual.html"><span class="mnum">1</span><span class="mtxt"><b>Conceptual</b><small>Física → álgebra lineal</small></span></a></li>
+      <li><a href="2-fundamental.html"><span class="mnum">2</span><span class="mtxt"><b>Matriz fundamental Ψ</b><small>Wronskiano · Ejercicio 2</small></span></a></li>
+      <li><a href="3-transicion.html"><span class="mnum">3</span><span class="mtxt"><b>Matriz de transición Φ</b><small>LTV · Ejercicio 3</small></span></a></li>
+    </ul>
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">local · offline</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="content">
+    <div class="hero">
+      <div class="eyebrow">Masa · resorte · amortiguador &nbsp;→&nbsp; ẋ = A·x</div>
+      <h2>De la <em>intuición física</em><br>a las matrices que gobiernan<br>la evolución del sistema</h2>
+      <p class="lede">Tres módulos que van de lo conceptual a lo práctico. El eje de todo: qué cambia cuando <b>A deja de ser constante (LTI)</b> y pasa a <b>depender del tiempo (LTV)</b> — justo el corazón del Ejercicio 3.</p>
+
+      <div class="enter">
+        <a class="ecard" href="1-conceptual.html" style="--nav:var(--ltv)">
+          <span class="en" style="background:var(--ltv)">1</span>
+          <span class="et"><b>Del sistema físico al álgebra lineal</b><small>El vector de estado, A como campo de flechas, Ψ y Φ, cómo leer el plano de fases y el pivote LTI→LTV. · 6 páginas</small></span>
+          <span class="ar">→</span>
+        </a>
+        <a class="ecard" href="2-fundamental.html" style="--nav:var(--psi)">
+          <span class="en" style="background:var(--psi)">2</span>
+          <span class="et"><b>La Matriz Fundamental Ψ en acción</b><small>Constructor interactivo (autovalores + Wronskiano en vivo), demostraciones del Ejercicio 2 y armado de Ψ del caso variante. · 6 páginas</small></span>
+          <span class="ar">→</span>
+        </a>
+        <a class="ecard" href="3-transicion.html" style="--nav:var(--phi)">
+          <span class="en" style="background:var(--phi)">3</span>
+          <span class="et"><b>La Matriz de Transición Φ y el salto a LTV</b><small>Por qué e^∫A falla cuando A(t) varía, serie de Peano–Baker, y el Ejercicio 3·a / 3·b resueltos y verificados. · 7 páginas</small></span>
+          <span class="ar">→</span>
+        </a>
+      </div>
+
+      <div class="callout" style="--nav:var(--ltv);margin-top:34px">
+        <b>Cómo navegar.</b> El panel <b>izquierdo</b> salta entre los tres módulos. Dentro de cada módulo, el panel <b>derecho</b> lista las páginas: hacés clic, o usás los botones <span class="k">◀ ▶</span>, o las <b>flechas ← →</b> del teclado. Una página a la vez, sin scroll infinito.
+      </div>
+      <p class="muted" style="font-size:13.5px;font-family:var(--mono)">Archivos en <span class="k">DinamicaOco/espacio-estados/</span> · abrí <span class="k">index.html</span> en el navegador · funciona sin conexión.</p>
+    </div>
+  </main>
+</div>
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+</body>
+</html>

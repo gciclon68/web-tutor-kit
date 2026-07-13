@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2 · La Matriz Fundamental Ψ en acción</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div class="app" style="--nav:var(--psi)">
+
+  <nav class="sidenav">
+    <div class="brand">
+      <div class="eyebrow">Guía de estudio</div>
+      <h1>Sistemas lineales<br>y espacio de estados</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa de la serie</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-conceptual.html"><span class="mnum">1</span><span class="mtxt"><b>Conceptual</b><small>Física → álgebra lineal</small></span></a></li>
+      <li><a href="2-fundamental.html" class="active"><span class="mnum">2</span><span class="mtxt"><b>Matriz fundamental Ψ</b><small>Wronskiano · Ejercicio 2</small></span></a></li>
+      <li><a href="3-transicion.html"><span class="mnum">3</span><span class="mtxt"><b>Matriz de transición Φ</b><small>LTV · Ejercicio 3</small></span></a></li>
+    </ul>
+    <div class="sideblock">
+      <div class="pnhead">En este módulo</div>
+      <div id="pagelist"></div>
+      <div class="pnfoot">
+        <div class="pgpos" id="pgpos">1 / 6</div>
+        <div class="pgbtns">
+          <button class="pgbtn" id="prevpg">◀ Anterior<small>—</small></button>
+          <button class="pgbtn" id="nextpg" style="text-align:right">Siguiente ▶<small>—</small></button>
+        </div>
+      </div>
+    </div>
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">Módulo 2 / 3</span>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div class="pagewrap">
+
+      <!-- P1 -->
+      <article class="page" id="p1" data-label="01" data-title="Constructor de Ψ · LTI">
+        <div class="eyebrow">01 · Constructor interactivo <span class="bar"></span></div>
+        <h2>Las columnas de <span class="tag psi">Ψ(t)</span> son trayectorias</h2>
+        <p class="lede">Tomamos como columnas las trayectorias que arrancan en los ejes: x⁽¹⁾(0)=[1,0]ᵀ y x⁽²⁾(0)=[0,1]ᵀ. Movés los parámetros y mirás los autovalores y el Wronskiano.</p>
+        <div class="grid2">
+          <div class="card">
+            <canvas id="c-build" aria-label="Retrato con las dos columnas de Psi"></canvas>
+            <div class="legend"><span><i style="background:var(--psi)"></i>x⁽¹⁾ col 1</span><span><i style="background:var(--phi)"></i>x⁽²⁾ col 2</span></div>
+            <div class="controls">
+              <div class="ctl"><label>masa m <output id="o-m">1.0</output></label><input type="range" id="s-m" min="0.5" max="3" step="0.1" value="1"></div>
+              <div class="ctl"><label>rigidez k <output id="o-k">1.0</output></label><input type="range" id="s-k" min="0.2" max="4" step="0.1" value="1"></div>
+              <div class="ctl"><label>roce c <output id="o-c">0.4</output></label><input type="range" id="s-c" min="0" max="4" step="0.1" value="0.4"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="eq"><span>A =</span><span class="matwrap"><span class="mat c2"><span>0</span><span>1</span><span id="a10">−1.0</span><span id="a11">−0.4</span></span></span></div>
+            <div class="readout">
+              <div class="rrow"><span>Autovalores λ</span><span class="v" id="o-eig">—</span></div>
+              <div class="rrow"><span>Régimen físico</span><span id="o-reg" class="pill ok">—</span></div>
+              <div class="rrow"><span>Ψ(0)</span><span class="v">I (identidad)</span></div>
+              <div class="rrow"><span>Wronskiano det Ψ(t)</span><span class="v col-psi" id="o-wr">—</span></div>
+              <div class="rrow"><span>¿Fundamental?</span><span id="o-fund" class="pill ok">SÍ</span></div>
+            </div>
+            <p class="muted" style="font-size:13px">Como Ψ(0)=I, esta Ψ es además <b>Φ(t,0)</b>. Abel: det Ψ(t)=det Ψ(0)·e<sup>∫tr A</sup> → nunca se anula.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- P2 -->
+      <article class="page" id="p2" data-label="02" data-title="Ejercicio 2·a">
+        <div class="eyebrow">02 · Ejercicio 2·a (0.5 pt) <span class="bar"></span></div>
+        <h2>Combinación lineal de soluciones = solución</h2>
+        <p class="lede">Si Ψ₁ y Ψ₂ cumplen Ψᵢ′ = A(t)Ψᵢ, entonces αΨ₁ + βΨ₂ también es solución, para todo α,β ∈ ℝ.</p>
+        <div class="card">
+          <ol class="steps">
+            <li><h4>Nombrar el candidato</h4>Sea <span class="k">Ψ = αΨ₁ + βΨ₂</span>. Queremos ver que cumple Ψ′ = AΨ.</li>
+            <li><h4>Derivar (la derivada es lineal)</h4><div class="eq">Ψ′ = (αΨ₁ + βΨ₂)′ = α Ψ₁′ + β Ψ₂′</div></li>
+            <li><h4>Usar que cada una es solución</h4><div class="eq">Ψ′ = α(AΨ₁) + β(AΨ₂)</div></li>
+            <li><h4>Sacar A de factor común</h4><div class="eq">Ψ′ = A(αΨ₁ + βΨ₂) = A·Ψ &nbsp;<span class="pill ok">∎</span></div>El conjunto de soluciones es un <b>espacio vectorial</b>: linealidad + factor común A.</li>
+          </ol>
+        </div>
+      </article>
+
+      <!-- P3 -->
+      <article class="page" id="p3" data-label="03" data-title="Ejercicio 2·b">
+        <div class="eyebrow">03 · Ejercicio 2·b (1.0 pt) <span class="bar"></span></div>
+        <h2>…pero NO necesariamente <span style="color:var(--bad)">fundamental</span></h2>
+        <p class="lede">Ser solución (Ψ′=AΨ) y ser fundamental (además det Ψ ≠ 0) son cosas distintas. Una combinación sigue siendo solución, pero su determinante puede anularse.</p>
+        <div class="grid2">
+          <div class="card">
+            <p class="muted" style="font-size:13.5px">Contraejemplo: dos fundamentales cuyas columnas pueden alinearse.</p>
+            <div class="eq center" style="font-size:15px">αΨ₁+βΨ₂ = <span class="matwrap"><span class="mat c2"><span class="col-psi">α</span><span class="col-phi">β</span><span class="col-psi">β</span><span class="col-phi">α</span></span></span></div>
+            <div class="eq center">det = α² − β²</div>
+            <p class="muted" style="font-size:13.5px">Se anula en <span class="k">α = ±β</span>: las columnas se vuelven paralelas y el paralelogramo colapsa.</p>
+            <div class="controls">
+              <div class="ctl"><label>α <output id="o-al">1.0</output></label><input type="range" id="s-al" min="-1.5" max="1.5" step="0.05" value="1"></div>
+              <div class="ctl"><label>β <output id="o-be">0.3</output></label><input type="range" id="s-be" min="-1.5" max="1.5" step="0.05" value="0.3"></div>
+            </div>
+          </div>
+          <div class="card">
+            <canvas id="c-det" aria-label="Paralelogramo de columnas colapsando"></canvas>
+            <div class="readout" style="margin-top:12px">
+              <div class="rrow"><span>det (área con signo)</span><span class="v" id="o-det">—</span></div>
+              <div class="rrow"><span>Estado</span><span id="o-detp" class="pill ok">fundamental</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout warn"><b>Frase para el examen.</b> “La combinación es solución por linealidad (2·a), pero <b>no</b> necesariamente fundamental: basta que exista (α,β) con det(αΨ₁+βΨ₂)=0. Fundamental exige determinante no nulo <i>para todo t</i>.”</div>
+      </article>
+
+      <!-- P4 -->
+      <article class="page" id="p4" data-label="04" data-title="Ejercicio 2·c">
+        <div class="eyebrow">04 · Ejercicio 2·c (0.5 pt) <span class="bar"></span></div>
+        <h2>Φ = ΨM con M invertible <span style="color:var(--ok)">sí</span> es fundamental</h2>
+        <p class="lede">Si Ψ es fundamental y M ∈ ℝⁿˣⁿ es invertible y constante, entonces Φ = ΨM es fundamental. Ojo: M multiplica por la <b>derecha</b>.</p>
+        <div class="card">
+          <ol class="steps">
+            <li><h4>¿Es solución? — Derivar (M constante)</h4><div class="eq">Φ′ = (ΨM)′ = Ψ′M = (AΨ)M = A(ΨM) = AΦ <span class="pill ok">solución ✓</span></div></li>
+            <li><h4>¿Determinante no nulo? — Producto de determinantes</h4><div class="eq">det Φ = det Ψ · det M ≠ 0</div>Ψ fundamental (det Ψ≠0) y M invertible (det M≠0). <span class="pill ok">fundamental ∎</span></li>
+          </ol>
+        </div>
+        <div class="callout psi"><b>Significado.</b> Multiplicar por la derecha por M constante invertible = <b>recombinar las columnas</b> (cambiar la base) sin salir del mismo espacio. Por eso todas las fundamentales cumplen Φ = ΨM. Con <span class="k">M = Ψ(t₀)⁻¹</span> obtenés la que vale I en t₀: <span class="col-phi">Φ(t,t₀)</span> → puente al <b>Módulo 3</b>.</div>
+      </article>
+
+      <!-- P5 -->
+      <article class="page" id="p5" data-label="05" data-title="Armar Ψ del Ejercicio 3 · LTV">
+        <div class="eyebrow">05 · El salto a variante en el tiempo <span class="bar"></span></div>
+        <h2>Armar Ψ(t) del Ejercicio 3 <span class="tag ltv">A(t) variable</span></h2>
+        <p class="lede">Con A dependiente de t no hay retrato fijo ni autovalores constantes. Pero el sistema es <b>triangular superior</b> → se resuelve por integración directa por componentes, de abajo hacia arriba.</p>
+        <div class="eq center"><span>A(t) =</span><span class="matwrap col-ltv"><span class="mat c2"><span>2</span><span>e<sup>−t</sup></span><span>0</span><span>1</span></span></span><span>⇒</span><span style="font-family:var(--mono);font-size:14px">ẋ₁ = 2x₁ + e<sup>−t</sup>x₂ ; ẋ₂ = x₂</span></div>
+        <div class="card">
+          <ol class="steps" style="--nav:var(--ltv)">
+            <li><h4>Ecuación de abajo (desacoplada)</h4>ẋ₂ = x₂ → <span class="k">x₂ = c₂ eᵗ</span>.</li>
+            <li><h4>Sustituir arriba</h4>ẋ₁ = 2x₁ + e<sup>−t</sup>(c₂eᵗ) = 2x₁ + c₂ → <span class="k">ẋ₁ − 2x₁ = c₂</span>.</li>
+            <li><h4>Resolver esa lineal</h4>Homogénea c₁e²ᵗ, particular −c₂/2 → <span class="k">x₁ = c₁ e²ᵗ − c₂/2</span>.</li>
+            <li><h4>Extraer las dos soluciones base</h4><div class="eq">(1,0): <span class="vecwrap col-psi"><span class="mat c1"><span>e²ᵗ</span><span>0</span></span></span> &nbsp; (0,1): <span class="vecwrap col-psi"><span class="mat c1"><span>−½</span><span>eᵗ</span></span></span></div></li>
+            <li><h4>Columnas → Ψ(t)</h4><div class="eq"><span class="col-psi">Ψ(t) =</span><span class="matwrap col-psi"><span class="mat c2"><span>e²ᵗ</span><span>−½</span><span>0</span><span>eᵗ</span></span></span></div></li>
+            <li><h4>Verificar con el Wronskiano</h4><div class="eq">det Ψ(t) = e²ᵗ·eᵗ − (−½)·0 = <b class="col-psi">e³ᵗ</b> ≠ 0 <span class="pill ok">fundamental ✓</span></div>Abel: tr A = 2+1 = 3 → det crece como e³ᵗ.</li>
+          </ol>
+        </div>
+        <div class="callout ltv"><b>Lo importante.</b> En LTI armabas Ψ con autovalores de una A fija. Acá la A cambia: la receta pasa a ser <b>integrar</b> aprovechando la estructura triangular. Esta Ψ no vale I en 0 (Ψ(0)=[[1,−½],[0,1]]); normalizarla es el <b>Ejercicio 3·a</b> → Módulo 3.</div>
+      </article>
+
+      <!-- P6 -->
+      <article class="page" id="p6" data-label="06" data-title="Patrón de examen">
+        <div class="eyebrow">06 · Orientación al examen <span class="bar"></span></div>
+        <h2>Qué te van a pedir sobre Ψ</h2>
+        <div class="exam">
+          <div class="lead">Patrón de examen · reflejos</div>
+          <ol>
+            <li><b>“Demostrar que … es solución”</b> → derivá el candidato, usá Ψᵢ′=AΨᵢ, sacá A de factor común. (2·a, 2·c)</li>
+            <li><b>“Solución vs. fundamental”</b> → recordá el <b>det ≠ 0</b>. Solución es cerrado por combinación lineal; fundamental exige Wronskiano no nulo. (2·b)</li>
+            <li><b>“Hallar una matriz fundamental”</b> con A(t) triangular/desacoplada → <b>integrá por componentes</b> de abajo hacia arriba, formá columnas, verificá con el Wronskiano.</li>
+            <li>Chequeo siempre disponible: <b>det Ψ(t) = det Ψ(t₀)·e<sup>∫ tr A(s) ds</sup></b> (Abel–Liouville).</li>
+          </ol>
+        </div>
+        <div class="callout psi" style="margin-top:20px"><b>Seguí al Módulo 3.</b> Ya tenés Ψ(t) del Ejercicio 3. Ahí la normalizamos a Φ(t,0), vemos por qué e<sup>∫A</sup> falla, y resolvemos el PVI 3·b.</div>
+      </article>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+<script>
+(function(){
+  "use strict";
+  // P1 builder
+  (function(){
+    const cv=document.getElementById("c-build");
+    const sm=document.getElementById("s-m"),sk=document.getElementById("s-k"),sc=document.getElementById("s-c");
+    function update(){
+      const m=+sm.value,k=+sk.value,c=+sc.value;
+      document.getElementById("o-m").textContent=m.toFixed(1);
+      document.getElementById("o-k").textContent=k.toFixed(1);
+      document.getElementById("o-c").textContent=c.toFixed(1);
+      const a10=-k/m,a11=-c/m;
+      document.getElementById("a10").textContent=a10.toFixed(2);
+      document.getElementById("a11").textContent=a11.toFixed(2);
+      const A=()=>[[0,1],[a10,a11]];
+      const T=a11, D=k/m, disc=T*T-4*D; let eigTxt,reg;
+      if(disc<0){ const re=(T/2).toFixed(2), im=(Math.sqrt(-disc)/2).toFixed(2); eigTxt=re+" ± "+im+"i"; reg=c===0?"oscilador puro (centro)":"subamortiguado"; }
+      else{ const l1=((T+Math.sqrt(disc))/2).toFixed(2), l2=((T-Math.sqrt(disc))/2).toFixed(2); eigTxt=l1+", "+l2; reg="sobreamortiguado"; }
+      document.getElementById("o-eig").textContent=eigTxt;
+      const rp=document.getElementById("o-reg"); rp.textContent=reg; rp.className="pill ok";
+      const p1=PP.traj(A,[1,0],0,3,0.01), p2=PP.traj(A,[0,1],0,3,0.01);
+      const c1=p1[p1.length-1], c2=p2[p2.length-1]; const wr=c1[0]*c2[1]-c1[1]*c2[0];
+      document.getElementById("o-wr").textContent=wr.toExponential(2);
+      const f=PP.fit(cv,260); if(!f)return; const {ctx,w,h}=f; const tf=PP.makeTf(w,h,3,3); PP.axes(ctx,tf);
+      const tp1=PP.traj(A,[1,0],0,14,0.01), tp2=PP.traj(A,[0,1],0,14,0.01);
+      PP.drawTraj(ctx,tf,tp1,PP.css("--psi")); PP.drawTraj(ctx,tf,tp2,PP.css("--phi"));
+      PP.dot(ctx,tf,[1,0],PP.css("--psi"),5); PP.dot(ctx,tf,[0,1],PP.css("--phi"),5);
+    }
+    [sm,sk,sc].forEach(s=>s.addEventListener("input",update));
+    PP.register(cv,update);
+  })();
+
+  // P3 det collapse
+  (function(){
+    const cv=document.getElementById("c-det");
+    const sa=document.getElementById("s-al"),sb=document.getElementById("s-be");
+    function update(){
+      const al=+sa.value,be=+sb.value;
+      document.getElementById("o-al").textContent=al.toFixed(2);
+      document.getElementById("o-be").textContent=be.toFixed(2);
+      const det=al*al-be*be; document.getElementById("o-det").textContent=det.toFixed(3);
+      const near=Math.abs(det)<0.06; const pill=document.getElementById("o-detp");
+      pill.textContent=near?"det ≈ 0 · degenerado":"fundamental"; pill.className="pill "+(near?"bad":"ok");
+      const f=PP.fit(cv,210); if(!f)return; const {ctx,w,h}=f; const tf=PP.makeTf(w,h,1.8,1.8); PP.axes(ctx,tf,{lx:false,ly:false});
+      const c1=[al,be],c2=[be,al];
+      ctx.fillStyle=near?PP.css("--bad"):PP.css("--psi"); ctx.globalAlpha=.2; ctx.beginPath();
+      ctx.moveTo(tf.sx(0),tf.sy(0)); ctx.lineTo(tf.sx(c1[0]),tf.sy(c1[1]));
+      ctx.lineTo(tf.sx(c1[0]+c2[0]),tf.sy(c1[1]+c2[1])); ctx.lineTo(tf.sx(c2[0]),tf.sy(c2[1])); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+      PP.arrow(ctx,tf.sx(0),tf.sy(0),tf.sx(c1[0]),tf.sy(c1[1]),PP.css("--psi"),2.4);
+      PP.arrow(ctx,tf.sx(0),tf.sy(0),tf.sx(c2[0]),tf.sy(c2[1]),PP.css("--phi"),2.4);
+      ctx.fillStyle=PP.css("--psi"); ctx.font="11px ui-monospace,monospace"; ctx.fillText("col₁",tf.sx(c1[0])+4,tf.sy(c1[1]));
+      ctx.fillStyle=PP.css("--phi"); ctx.fillText("col₂",tf.sx(c2[0])+4,tf.sy(c2[1]));
+    }
+    [sa,sb].forEach(s=>s.addEventListener("input",update));
+    PP.register(cv,update);
+  })();
+})();
+</script>
+</body>
+</html>

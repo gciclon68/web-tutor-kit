@@ -1,0 +1,8 @@
+{
+  "name": "tutor-ui",
+  "description": "Framework para sitios HTML multipágina (navegación por módulos + tema oscuro + paneles ajustables) con un panel de chat 'Tutor' embebido que habla con tu CLI `claude` vía un bridge Node local. Renderiza Markdown y LaTeX. Incluye una skill que lo scaffoldea en cualquier proyecto y un ejemplo completo.",
+  "version": "1.0.0",
+  "author": { "name": "Jolo" },
+  "license": "MIT",
+  "keywords": ["html", "study-guide", "documentation", "claude-code", "tutor", "markdown", "latex", "offline"]
+}

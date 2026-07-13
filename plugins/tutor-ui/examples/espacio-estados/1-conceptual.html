@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1 · Del sistema físico al álgebra lineal</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div class="app" style="--nav:var(--ltv)">
+
+  <!-- LEFT 25% -->
+  <nav class="sidenav">
+    <div class="brand">
+      <div class="eyebrow">Guía de estudio</div>
+      <h1>Sistemas lineales<br>y espacio de estados</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa de la serie</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-conceptual.html" class="active"><span class="mnum">1</span><span class="mtxt"><b>Conceptual</b><small>Física → álgebra lineal</small></span></a></li>
+      <li><a href="2-fundamental.html"><span class="mnum">2</span><span class="mtxt"><b>Matriz fundamental Ψ</b><small>Wronskiano · Ejercicio 2</small></span></a></li>
+      <li><a href="3-transicion.html"><span class="mnum">3</span><span class="mtxt"><b>Matriz de transición Φ</b><small>LTV · Ejercicio 3</small></span></a></li>
+    </ul>
+    <div class="sideblock">
+      <div class="pnhead">En este módulo</div>
+      <div id="pagelist"></div>
+      <div class="pnfoot">
+        <div class="pgpos" id="pgpos">1 / 6</div>
+        <div class="pgbtns">
+          <button class="pgbtn" id="prevpg">◀ Anterior<small>—</small></button>
+          <button class="pgbtn" id="nextpg" style="text-align:right">Siguiente ▶<small>—</small></button>
+        </div>
+      </div>
+    </div>
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">Módulo 1 / 3</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="content">
+    <div class="pagewrap">
+
+      <!-- P1 -->
+      <article class="page" id="p1" data-label="01" data-title="El sistema físico">
+        <div class="eyebrow">01 · El sistema físico <span class="bar"></span></div>
+        <h2>Masa · resorte · amortiguador</h2>
+        <p class="lede">Una masa que oscila no “sabe” de matrices. Pero si le preguntás <i>dónde está</i> y <i>qué tan rápido va</i>, su movimiento entero se vuelve un objeto de álgebra lineal.</p>
+        <div class="stack">
+          <div class="card">
+            <p>La física da <b>una</b> ecuación de segundo orden que mezcla posición, velocidad y aceleración:</p>
+            <div class="eq center big">m·ẍ + c·ẋ + k·x = 0</div>
+            <p class="muted">El truco del espacio de estados: partirla en dos preguntas de primer orden.</p>
+            <div class="flow"><span class="node">posición&nbsp;x₁</span><span class="arw">→ ¿cómo cambia?</span><span class="node">velocidad&nbsp;x₂</span></div>
+          </div>
+          <div class="card">
+            <canvas id="c-osc" aria-label="Retrato de fase de la masa oscilando"></canvas>
+            <div class="legend"><span><i style="background:var(--psi)"></i>trayectoria (estado en el tiempo)</span><span><i style="background:var(--ink-soft)"></i>campo A·x</span></div>
+            <p class="muted" style="font-size:13px">Cada punto del plano es un <b>estado completo</b>. La masa oscilando = un punto que gira en espiral hacia el reposo.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- P2 -->
+      <article class="page" id="p2" data-label="02" data-title="El vector de estado · ẋ=Ax">
+        <div class="eyebrow">02 · La idea clave <span class="bar"></span></div>
+        <h2>El vector de estado y la ley ẋ = A·x</h2>
+        <p class="lede">Con dos variables de estado, la ecuación de 2º orden se vuelve un sistema de primer orden — y eso es lo que el álgebra lineal sabe manejar.</p>
+        <div class="eq center">x₁ = posición &nbsp;,&nbsp; x₂ = velocidad = ẋ₁</div>
+        <div class="eq center">
+          <span class="vecwrap"><span class="mat c1"><span>ẋ₁</span><span>ẋ₂</span></span></span><span>=</span>
+          <span class="matwrap"><span class="mat c2"><span>0</span><span>1</span><span>−k/m</span><span>−c/m</span></span></span>
+          <span class="matwrap"><span class="mat c1"><span>x₁</span><span>x₂</span></span></span><span class="muted">≡ ẋ = A·x</span>
+        </div>
+        <div class="callout"><b>Qué es realmente A.</b> <b>A es la regla del movimiento</b>: parado en un estado x, el producto <span class="k">A·x</span> te da la <i>flecha de velocidad</i>. A define un <b>campo de flechas</b> sobre todo el plano; la trayectoria es seguir las flechas.</div>
+        <div class="card">
+          <canvas id="c-field" aria-label="Campo vectorial de A con una trayectoria"></canvas>
+          <div class="controls">
+            <button class="btn" id="field-drop">Soltar estado ↺</button>
+            <span class="muted" style="font-family:var(--mono);font-size:12.5px">…o hacé clic dentro del plano para soltar la masa desde ahí.</span>
+          </div>
+          <div class="legend"><span><i style="background:var(--ink-soft)"></i>A·x en cada punto</span><span><i style="background:var(--psi)"></i>trayectoria seguida</span></div>
+        </div>
+      </article>
+
+      <!-- P3 -->
+      <article class="page" id="p3" data-label="03" data-title="Matriz fundamental Ψ">
+        <div class="eyebrow">03 · Reunir las soluciones <span class="bar"></span></div>
+        <h2>Matriz fundamental <span class="tag psi">Ψ(t)</span></h2>
+        <p class="lede">Un sistema 2×2 tiene <b>dos</b> soluciones básicas independientes. Puestas como columnas, forman la matriz fundamental Ψ: el paquete de “modos” con los que el sistema puede moverse.</p>
+        <div class="eq center">
+          <span class="col-psi">Ψ(t)</span><span>=</span>
+          <span class="matwrap col-psi"><span class="mat c2"><span>│</span><span>│</span><span>x⁽¹⁾(t)</span><span>x⁽²⁾(t)</span><span>│</span><span>│</span></span></span>
+          <span class="muted">cada columna es una trayectoria entera</span>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h3>Propiedad de matriz</h3>
+            <p>Como cada columna cumple ẋ⁽ⁱ⁾ = A·x⁽ⁱ⁾, la matriz entera cumple la <b>misma ley</b>:</p>
+            <div class="eq center big"><span class="col-psi">Ψ′(t)</span> = A(t) <span class="col-psi">Ψ(t)</span></div>
+          </div>
+          <div class="card">
+            <h3>El Wronskiano = det Ψ(t)</h3>
+            <p>Criterio para saber si las columnas son <i>de verdad</i> independientes:</p>
+            <div class="readout">
+              <div class="rrow"><span>det Ψ ≠ 0</span><span class="pill ok">generan el plano ✓</span></div>
+              <div class="rrow"><span>det Ψ = 0</span><span class="pill bad">paralelas ✗</span></div>
+            </div>
+            <p class="muted" style="font-size:13px">El determinante es el <b>área</b> del paralelogramo de las columnas. Área ≠ 0 ⇔ no alineadas.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- P4 -->
+      <article class="page" id="p4" data-label="04" data-title="Matriz de transición Φ">
+        <div class="eyebrow">04 · El operador de evolución <span class="bar"></span></div>
+        <h2>Matriz de transición <span class="tag phi">Φ(t, t₀)</span></h2>
+        <p class="lede">Entre todas las matrices fundamentales, hay una que arranca siendo la identidad: la matriz de transición Φ, la “máquina del tiempo” del sistema.</p>
+        <div class="eq center big">x(t) = <span class="col-phi">Φ(t, t₀)</span> · x(t₀) <span class="muted" style="font-size:14px">con</span> <span class="col-phi">Φ(t₀,t₀)=I</span></div>
+        <div class="callout phi"><b>Relación exacta Ψ ↔ Φ.</b> Cualquier fundamental Ψ fabrica Φ normalizando por su valor inicial:
+          <div class="eq center" style="margin:10px 0 2px"><span class="col-phi">Φ(t,t₀)</span> = <span class="col-psi">Ψ(t)</span> <span class="col-psi">Ψ(t₀)</span><sup>−1</sup></div>
+          Esto es lo que pide el <b>Ejercicio 3·a</b>: “hallá una Ψ con Ψ(0)=I” = hallá Φ(t,0).</div>
+        <div class="card">
+          <canvas id="c-phi" aria-label="Φ propagando un estado inicial"></canvas>
+          <div class="controls">
+            <button class="btn" id="phi-play">▶ propagar con Φ</button>
+            <div class="ctl" style="max-width:260px"><label>t transcurrido <output id="phi-t">0.0</output></label><input type="range" id="phi-slider" min="0" max="100" value="0"></div>
+          </div>
+          <p class="muted" style="font-size:13px">La flecha magenta es <b>Φ(t,0)·x₀</b>: el mismo estado inicial transportado por el operador de evolución.</p>
+        </div>
+      </article>
+
+      <!-- P5 -->
+      <article class="page" id="p5" data-label="05" data-title="Leer el plano de fases">
+        <div class="eyebrow">05 · Interpretación <span class="bar"></span></div>
+        <h2>Cómo leer un retrato de espacio de estados</h2>
+        <p class="lede">El plano <b>x₁ (posición) vs x₂ (velocidad)</b> es tu instrumento de diagnóstico. La forma de la trayectoria depende de los <b>autovalores de A</b>.</p>
+        <div class="readguide">
+          <div class="rg"><canvas data-portrait="spiral-in" width="148" height="148"></canvas><div><h4>Espiral hacia adentro</h4><p>Autovalores complejos, Re &lt; 0. <b>Subamortiguado estable</b>: oscila y se apaga.</p></div></div>
+          <div class="rg"><canvas data-portrait="center" width="148" height="148"></canvas><div><h4>Órbitas cerradas</h4><p>Autovalores imaginarios puros. <b>Centro</b>: oscila para siempre (c=0).</p></div></div>
+          <div class="rg"><canvas data-portrait="node-in" width="148" height="148"></canvas><div><h4>Nodo estable</h4><p>Autovalores reales &lt; 0. <b>Sobreamortiguado</b>: vuelve al reposo sin oscilar.</p></div></div>
+          <div class="rg"><canvas data-portrait="saddle" width="148" height="148"></canvas><div><h4>Punto silla</h4><p>Reales de signo opuesto. <b>Inestable</b>: casi todo se escapa (péndulo invertido).</p></div></div>
+        </div>
+        <div class="callout lti" style="margin-top:18px"><b>Regla mental.</b> Parte real → ¿crece o se apaga? &nbsp;·&nbsp; Parte imaginaria → ¿oscila o no? Ese es el 80% de la lectura.</div>
+      </article>
+
+      <!-- P6 -->
+      <article class="page" id="p6" data-label="06" data-title="El pivote LTI → LTV">
+        <div class="eyebrow">06 · El corazón del examen <span class="bar"></span></div>
+        <h2>Cuando A deja de ser constante <span class="tag lti">LTI</span> → <span class="tag ltv">LTV</span></h2>
+        <p class="lede">Todo lo anterior asumía <b>A constante</b> (LTI): el campo de flechas es siempre el mismo. Ahí vale <span class="k">Φ = e<sup>A(t−t₀)</sup></span>.</p>
+        <p>Pero en el <b>Ejercicio 3</b>, <span class="k">A(t)=[[2, e<sup>−t</sup>],[0,1]]</span>. Ese <span class="col-ltv"><b>e<sup>−t</sup></b></span> hace que la regla del movimiento <b>se deforme en cada instante</b>: el sistema pasa a ser <b>LTV</b>.</p>
+        <div class="card">
+          <canvas id="c-morph" aria-label="Campo LTI fijo vs LTV que se deforma"></canvas>
+          <div class="controls">
+            <button class="btn" id="morph-play">▶ avanzar el tiempo</button>
+            <div class="ctl" style="max-width:300px"><label>t <output id="morph-t">0.0</output></label><input type="range" id="morph-slider" min="0" max="100" value="0"></div>
+          </div>
+          <div class="legend"><span><i style="background:var(--lti)"></i>LTI · A fija</span><span><i style="background:var(--ltv)"></i>LTV · A(t) se deforma</span></div>
+        </div>
+        <div class="callout ltv"><b>Por qué importa.</b> Con A variable, la flecha de <b>hoy</b> no es la de <b>mañana</b>: las A de dos instantes <b>ya no conmutan</b> y <span class="k">e<sup>∫A</sup></span> deja de funcionar. Hay que cambiar de herramienta. <b>Ese es el tema de los módulos 2 y 3.</b></div>
+        <div class="flow" style="font-size:13px;margin-top:16px">
+          <span class="node" style="border-color:var(--ltv);color:var(--ltv)"><b>01 Concepto</b> (acá)</span><span class="arw">→</span>
+          <span class="node"><b>02 Ψ</b> fundamental</span><span class="arw">→</span>
+          <span class="node"><b>03 Φ</b> transición · LTV</span>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+<script>
+(function(){
+  "use strict";
+  const K=1.0, C=0.35, Alti=()=>[[0,1],[-K,-C]];
+
+  // P1 oscillator
+  (function(){
+    const cv=document.getElementById("c-osc");
+    const pts=PP.traj(Alti,[2.6,0.4],0,26,0.02); let idx=0, last=0;
+    function draw(){ const f=PP.fit(cv,230); if(!f)return; const {ctx,w,h}=f; const tf=PP.makeTf(w,h,3.2,3.2);
+      PP.axes(ctx,tf); PP.field(ctx,tf,Alti,0); PP.drawTraj(ctx,tf,pts,PP.css("--psi"),null,idx+1);
+      PP.dot(ctx,tf,pts[Math.min(idx,pts.length-1)],PP.css("--psi"),5.5); }
+    PP.register(cv,draw);
+    if(!PP.reduce) PP.animate(cv,()=>{ const now=performance.now(); if(now-last>55){ idx=(idx+3)%pts.length; last=now; draw(); } });
+  })();
+
+  // P2 field + click
+  (function(){
+    const cv=document.getElementById("c-field");
+    let start=[2.4,1.6], pts=PP.traj(Alti,start,0,30,0.02), idx=0, anim=true, last=0, tf=null;
+    function draw(){ const f=PP.fit(cv,290); if(!f)return; const {ctx,w,h}=f; tf=PP.makeTf(w,h,3.4,3.4);
+      PP.axes(ctx,tf); PP.field(ctx,tf,Alti,0); PP.drawTraj(ctx,tf,pts,PP.css("--psi"),null,idx+1);
+      PP.dot(ctx,tf,pts[Math.min(idx,pts.length-1)],PP.css("--psi"),5.5); PP.dot(ctx,tf,start,PP.css("--ltv"),4); }
+    PP.register(cv,draw);
+    if(!PP.reduce) PP.animate(cv,()=>{ const now=performance.now(); if(anim && now-last>45){ idx+=3; if(idx>=pts.length){idx=pts.length-1;anim=false;} last=now; draw(); } });
+    function drop(sx,sy){ if(!tf)return; const X=sx/(tf.w-2*tf.pad)*2*tf.X-tf.X; const Y=-((sy-(tf.h-tf.pad))/(tf.h-2*tf.pad)*2*tf.Y);
+      start=[X,Y]; pts=PP.traj(Alti,start,0,30,0.02); idx=0; anim=true; draw(); }
+    cv.addEventListener("click",e=>{ const r=cv.getBoundingClientRect(); drop(e.clientX-r.left,e.clientY-r.top); });
+    document.getElementById("field-drop").addEventListener("click",()=>{ start=[(Math.random()*4-2)||1,(Math.random()*4-2)||1]; pts=PP.traj(Alti,start,0,30,0.02); idx=0; anim=true; draw(); });
+  })();
+
+  // P4 phi propagate
+  (function(){
+    const cv=document.getElementById("c-phi"); const x0=[2.4,-0.6]; const pts=PP.traj(Alti,x0,0,10,0.01);
+    const slider=document.getElementById("phi-slider"), out=document.getElementById("phi-t"); let playing=false;
+    function draw(){ const frac=+slider.value/100; const idx=Math.floor(frac*(pts.length-1)); out.textContent=(frac*10).toFixed(1);
+      const f=PP.fit(cv,250); if(!f)return; const {ctx,w,h}=f; const tf=PP.makeTf(w,h,3.2,3.2); PP.axes(ctx,tf);
+      ctx.globalAlpha=.35; PP.drawTraj(ctx,tf,pts,PP.css("--ink-soft")); ctx.globalAlpha=1;
+      PP.drawTraj(ctx,tf,pts,PP.css("--phi"),null,idx+1);
+      PP.arrow(ctx,tf.sx(0),tf.sy(0),tf.sx(x0[0]),tf.sy(x0[1]),PP.css("--ink-soft"),1.6);
+      const cur=pts[idx]; PP.arrow(ctx,tf.sx(0),tf.sy(0),tf.sx(cur[0]),tf.sy(cur[1]),PP.css("--phi"),2.4);
+      PP.dot(ctx,tf,x0,PP.css("--ink-soft"),4); PP.dot(ctx,tf,cur,PP.css("--phi"),5.5);
+      ctx.fillStyle=PP.css("--ink-soft"); ctx.font="11px ui-monospace,monospace"; ctx.fillText("x₀",tf.sx(x0[0])+6,tf.sy(x0[1])-6);
+      ctx.fillStyle=PP.css("--phi"); ctx.fillText("Φ(t,0)·x₀",tf.sx(cur[0])+6,tf.sy(cur[1])-6); }
+    PP.register(cv,draw);
+    slider.addEventListener("input",()=>{playing=false;draw();});
+    document.getElementById("phi-play").addEventListener("click",()=>{ if(PP.reduce){slider.value=100;draw();return;}
+      playing=true; slider.value=0; (function step(){ if(!playing)return; let v=+slider.value+1.3; if(v>=100){v=100;playing=false;} slider.value=v; draw(); if(playing)requestAnimationFrame(step); })(); });
+  })();
+
+  // P5 small portraits
+  function smallPortrait(cv,type){
+    const dpr=Math.min(devicePixelRatio||1,2); cv.width=148*dpr; cv.height=148*dpr;
+    const ctx=cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=148,h=148,tf=PP.makeTf(w,h,3,3); ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle=PP.css("--line"); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(tf.pad,tf.sy(0)); ctx.lineTo(w-tf.pad,tf.sy(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tf.sx(0),tf.pad); ctx.lineTo(tf.sx(0),h-tf.pad); ctx.stroke();
+    let A; if(type==="spiral-in")A=()=>[[-.25,1.4],[-1.4,-.25]];
+    else if(type==="center")A=()=>[[0,1.5],[-1.5,0]];
+    else if(type==="node-in")A=()=>[[-.5,0],[0,-1.4]];
+    else A=()=>[[.7,0],[0,-.9]];
+    const col=type==="saddle"?PP.css("--ltv"):PP.css("--psi");
+    const seeds=[[2.4,0],[0,2.4],[-2.4,0],[0,-2.4],[1.7,1.7],[-1.7,-1.7]];
+    seeds.forEach(s=>{ const p=PP.traj(A,s,0,type==="saddle"?2.2:9,0.02);
+      ctx.strokeStyle=col; ctx.lineWidth=1.6; ctx.globalAlpha=.85; ctx.beginPath();
+      p.forEach((q,i)=>{const px=tf.sx(q[0]),py=tf.sy(q[1]);i?ctx.lineTo(px,py):ctx.moveTo(px,py);}); ctx.stroke(); });
+    ctx.globalAlpha=1; ctx.fillStyle=col; ctx.beginPath(); ctx.arc(tf.sx(0),tf.sy(0),3,0,7); ctx.fill();
+  }
+  document.querySelectorAll("[data-portrait]").forEach(cv=>{ PP.register(cv,()=>smallPortrait(cv,cv.getAttribute("data-portrait"))); });
+
+  // P6 morph LTI vs LTV
+  (function(){
+    const cv=document.getElementById("c-morph");
+    const slider=document.getElementById("morph-slider"), out=document.getElementById("morph-t");
+    const Aref=()=>[[-.2,1.3],[-1.3,-.2]];
+    const Altv=(t)=>[[-.2,1.3+1.6*Math.exp(-t)],[-1.3+1.1*Math.exp(-t),-.2]];
+    let playing=false;
+    function draw(){ const frac=+slider.value/100; const t=frac*3.5; out.textContent=t.toFixed(1);
+      const f=PP.fit(cv,300); if(!f)return; const {ctx,w,h}=f; const half=w/2;
+      const tfL=PP.makeTf(half,h,3,3), tfR=PP.makeTf(half,h,3,3);
+      ctx.save(); ctx.beginPath(); ctx.rect(0,0,half-6,h); ctx.clip(); PP.axes(ctx,tfL); PP.field(ctx,tfL,Aref,0,PP.css("--lti"),0.17); ctx.restore();
+      ctx.save(); ctx.translate(half+6,0); ctx.beginPath(); ctx.rect(0,0,half-6,h); ctx.clip(); PP.axes(ctx,tfR); PP.field(ctx,tfR,Altv,t,PP.css("--ltv"),0.17); ctx.restore();
+      ctx.strokeStyle=PP.css("--line"); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(half,8); ctx.lineTo(half,h-8); ctx.stroke();
+      ctx.font="12px ui-monospace,monospace"; ctx.textAlign="center";
+      ctx.fillStyle=PP.css("--lti"); ctx.fillText("LTI · A fija",half/2,18);
+      ctx.fillStyle=PP.css("--ltv"); ctx.fillText("LTV · A(t)",half+half/2,18); ctx.textAlign="left"; }
+    PP.register(cv,draw);
+    slider.addEventListener("input",()=>{playing=false;draw();});
+    document.getElementById("morph-play").addEventListener("click",()=>{ if(PP.reduce){slider.value=100;draw();return;}
+      playing=true; slider.value=0; (function step(){ if(!playing)return; let v=+slider.value+1; if(v>=100){v=100;playing=false;} slider.value=v; draw(); if(playing)requestAnimationFrame(step); })(); });
+  })();
+})();
+</script>
+</body>
+</html>

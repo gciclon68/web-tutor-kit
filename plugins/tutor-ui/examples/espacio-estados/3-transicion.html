@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 · La Matriz de Transición Φ y el salto a LTV</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div class="app" style="--nav:var(--phi)">
+
+  <nav class="sidenav">
+    <div class="brand">
+      <div class="eyebrow">Guía de estudio</div>
+      <h1>Sistemas lineales<br>y espacio de estados</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa de la serie</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-conceptual.html"><span class="mnum">1</span><span class="mtxt"><b>Conceptual</b><small>Física → álgebra lineal</small></span></a></li>
+      <li><a href="2-fundamental.html"><span class="mnum">2</span><span class="mtxt"><b>Matriz fundamental Ψ</b><small>Wronskiano · Ejercicio 2</small></span></a></li>
+      <li><a href="3-transicion.html" class="active"><span class="mnum">3</span><span class="mtxt"><b>Matriz de transición Φ</b><small>LTV · Ejercicio 3</small></span></a></li>
+    </ul>
+    <div class="sideblock">
+      <div class="pnhead">En este módulo</div>
+      <div id="pagelist"></div>
+      <div class="pnfoot">
+        <div class="pgpos" id="pgpos">1 / 7</div>
+        <div class="pgbtns">
+          <button class="pgbtn" id="prevpg">◀ Anterior<small>—</small></button>
+          <button class="pgbtn" id="nextpg" style="text-align:right">Siguiente ▶<small>—</small></button>
+        </div>
+      </div>
+    </div>
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">Módulo 3 / 3</span>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div class="pagewrap">
+
+      <!-- P1 -->
+      <article class="page" id="p1" data-label="01" data-title="Definición y propiedades">
+        <div class="eyebrow">01 · El operador de evolución <span class="bar"></span></div>
+        <h2>Φ(t, t₀): definición y propiedades</h2>
+        <p class="lede">Φ es la única matriz fundamental que vale I en t₀. Cumple Φ′=A(t)Φ con Φ(t₀,t₀)=I y transporta cualquier estado: x(t)=Φ(t,t₀)x(t₀). Vale <b>siempre</b>, incluso con A(t) variable.</p>
+        <div class="props">
+          <div class="prop"><b>Identidad</b>Φ(t, t) = I<br><small>cero tiempo transcurrido = no pasa nada</small></div>
+          <div class="prop"><b>Composición (semigrupo)</b>Φ(t₂,t₀) = Φ(t₂,t₁)·Φ(t₁,t₀)<br><small>por tramos = de una</small></div>
+          <div class="prop"><b>Inversa</b>Φ(t₀,t) = Φ(t,t₀)⁻¹<br><small>siempre invertible → “rebobinar”</small></div>
+          <div class="prop"><b>Puente con Ψ</b>Φ(t,t₀) = Ψ(t)·Ψ(t₀)⁻¹<br><small>normalizar cualquier fundamental</small></div>
+        </div>
+        <div class="callout lti" style="margin-top:16px"><b>Ojo con el orden en LTV.</b> La composición respeta el orden temporal y en general <b>no</b> conmuta. Esa no-conmutatividad es la raíz de todo lo que sigue.</div>
+      </article>
+
+      <!-- P2 -->
+      <article class="page" id="p2" data-label="02" data-title="LTI · el exponencial e^Aτ">
+        <div class="eyebrow">02 · El caso fácil <span class="bar"></span></div>
+        <h2>Si A es constante <span class="tag lti">LTI</span> &nbsp;Φ = e<sup>A(t−t₀)</sup></h2>
+        <p class="lede">Con A constante, la solución de Φ′=AΦ, Φ(t₀)=I es el exponencial de matriz, con la misma serie que e<sup>x</sup>.</p>
+        <div class="eq center big">e<sup>Aτ</sup> = I + Aτ + <span style="font-size:14px">A²τ²/2! + A³τ³/3! + ···</span> &nbsp;(τ = t−t₀)</div>
+        <div class="callout lti"><b>Por qué funciona.</b> Al derivar la serie término a término, cada A “sale por la izquierda” y reaparece la serie: <span class="k">d/dt e<sup>Aτ</sup> = A e<sup>Aτ</sup></span>. El paso clave: <b>A conmuta consigo misma</b> (AᵏA = AAᵏ). Guardá la frase: <b>el exponencial funciona porque A conmuta consigo misma en todo instante.</b></div>
+      </article>
+
+      <!-- P3 -->
+      <article class="page" id="p3" data-label="03" data-title="Por qué falla e^∫A">
+        <div class="eyebrow">03 · Por qué se rompe todo <span class="bar"></span></div>
+        <h2>Si A(t) varía <span class="tag ltv">LTV</span> &nbsp;el exponencial <span style="color:var(--bad)">falla</span></h2>
+        <p class="lede">Tentación: “si A cambia, hago Φ = e<sup>∫A(s)ds</sup>”. Casi siempre está mal. Solo vale si A(t₁)A(t₂)=A(t₂)A(t₁) para todo t₁,t₂. Verifiquémoslo con la A del Ejercicio 3.</p>
+        <div class="grid2">
+          <div class="card">
+            <h3>Test del conmutador</h3>
+            <div class="eq center col-ltv">A(t) = <span class="matwrap col-ltv"><span class="mat c2"><span>2</span><span>e<sup>−t</sup></span><span>0</span><span>1</span></span></span></div>
+            <div class="controls">
+              <div class="ctl"><label>t₁ <output id="o-t1">0.0</output></label><input type="range" id="s-t1" min="0" max="3" step="0.1" value="0"></div>
+              <div class="ctl"><label>t₂ <output id="o-t2">1.5</output></label><input type="range" id="s-t2" min="0" max="3" step="0.1" value="1.5"></div>
+            </div>
+            <div class="readout">
+              <div class="rrow"><span>A(t₁)A(t₂) esquina ₁₂</span><span class="v" id="o-p12">—</span></div>
+              <div class="rrow"><span>A(t₂)A(t₁) esquina ₁₂</span><span class="v" id="o-p21">—</span></div>
+              <div class="rrow"><span>[A(t₁),A(t₂)]₁₂ = e<sup>−t₂</sup>−e<sup>−t₁</sup></span><span class="v" id="o-comm">—</span></div>
+              <div class="rrow"><span>¿Conmutan?</span><span id="o-commp" class="pill bad">NO</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Consecuencia numérica</h3>
+            <p class="muted" style="font-size:13px">Esquina ₁₂ de Φ(t,0). El exponencial ingenuo da un número <b>distinto</b> del real:</p>
+            <div class="controls"><div class="ctl" style="min-width:100%"><label>t <output id="o-tc">1.0</output></label><input type="range" id="s-tc" min="0.2" max="2" step="0.05" value="1"></div></div>
+            <div class="readout">
+              <div class="rrow"><span class="col-phi">Φ real · (e²ᵗ−1)/2</span><span class="v col-phi" id="o-true">—</span></div>
+              <div class="rrow"><span class="col-ltv">e<sup>∫A</sup> ingenuo</span><span class="v col-ltv" id="o-naive">—</span></div>
+              <div class="rrow"><span>Error relativo</span><span class="v" id="o-err">—</span></div>
+            </div>
+            <canvas id="c-cmp" style="margin-top:12px" aria-label="Φ real vs exponencial ingenuo"></canvas>
+            <div class="legend"><span><i style="background:var(--phi)"></i>Φ real</span><span><i style="background:var(--ltv)"></i>e^∫A ingenuo</span></div>
+          </div>
+        </div>
+        <div class="callout warn"><b>Conclusión.</b> Como <span class="k">e<sup>−t₂</sup> ≠ e<sup>−t₁</sup></span>, esta A <b>no conmuta</b> en tiempos distintos → <b>e<sup>∫A</sup> no sirve</b>. Se resuelve por integración directa (es triangular) o, en general, con Peano–Baker.</div>
+      </article>
+
+      <!-- P4 -->
+      <article class="page" id="p4" data-label="04" data-title="Serie de Peano–Baker">
+        <div class="eyebrow">04 · La herramienta general <span class="bar"></span></div>
+        <h2>Serie de Peano–Baker</h2>
+        <p class="lede">La fórmula que <b>siempre</b> da Φ(t,t₀), conmute A o no. Acumula integrales anidadas que respetan el orden del tiempo.</p>
+        <div class="card" style="overflow-x:auto">
+          <div class="eq center">Φ(t,t₀) = I + ∫<sub>t₀</sub><sup>t</sup>A(σ₁)dσ₁ + ∫<sub>t₀</sub><sup>t</sup>A(σ₁)∫<sub>t₀</sub><sup>σ₁</sup>A(σ₂)dσ₂dσ₁ + ···</div>
+        </div>
+        <div class="callout"><b>Cómo leerla.</b> Cada término mete “una capa más” de historia: primero el efecto instantáneo, después A actuando sobre lo que A ya hizo antes (σ₂ &lt; σ₁), etc. Si A conmutara consigo misma, todas esas integrales se colapsan y la serie <b>se convierte exactamente</b> en e<sup>∫A</sup>. Cuando no conmuta, el orden importa y no se simplifica. En el examen: nómbrala como el método general.</div>
+      </article>
+
+      <!-- P5 -->
+      <article class="page" id="p5" data-label="05" data-title="Ejercicio 3·a · hallar Φ(t,0)">
+        <div class="eyebrow">05 · Ejercicio 3·a (1.5 pt) <span class="bar"></span></div>
+        <h2>Hallar Φ(t, 0), la fundamental con <span class="tag phi">Ψ(0)=I</span></h2>
+        <p class="lede">Ya tenemos Ψ(t)=[[e²ᵗ, −½],[0, eᵗ]] (Módulo 2). La <b>normalizamos</b> para que valga I en 0, con M = Ψ(0)⁻¹.</p>
+        <div class="card">
+          <ol class="steps">
+            <li><h4>Evaluar Ψ en 0</h4><div class="eq"><span class="col-psi">Ψ(0) =</span><span class="matwrap col-psi"><span class="mat c2"><span>1</span><span>−½</span><span>0</span><span>1</span></span></span></div></li>
+            <li><h4>Invertir (triangular 2×2)</h4><div class="eq">Ψ(0)⁻¹ = <span class="matwrap"><span class="mat c2"><span>1</span><span>½</span><span>0</span><span>1</span></span></span></div><span class="muted">Para [[1,b],[0,1]] la inversa es [[1,−b],[0,1]]; acá b=−½.</span></li>
+            <li><h4>Multiplicar Φ = Ψ(t)·Ψ(0)⁻¹</h4><div class="eq"><span class="matwrap col-psi"><span class="mat c2"><span>e²ᵗ</span><span>−½</span><span>0</span><span>eᵗ</span></span></span><span class="matwrap"><span class="mat c2"><span>1</span><span>½</span><span>0</span><span>1</span></span></span>=<span class="matwrap col-phi"><span class="mat c2"><span>e²ᵗ</span><span>(e²ᵗ−1)/2</span><span>0</span><span>eᵗ</span></span></span></div><span class="muted">Fila 1, col 2: e²ᵗ·½ + (−½)·1 = (e²ᵗ−1)/2.</span></li>
+            <li><h4>Verificar las dos condiciones</h4><div class="eq">Φ(0)=<span class="matwrap"><span class="mat c2"><span>1</span><span>0</span><span>0</span><span>1</span></span></span>= I ✓ &nbsp; y &nbsp; Φ′=AΦ ✓</div><span class="muted">Φ′ fila 1 col 2 = e²ᵗ; y AΦ = 2·(e²ᵗ−1)/2 + e<sup>−t</sup>·eᵗ = (e²ᵗ−1)+1 = e²ᵗ. Coinciden.</span></li>
+          </ol>
+          <div class="eq center big" style="margin-top:6px"><span class="col-phi">Φ(t,0) =</span><span class="matwrap col-phi"><span class="mat c2"><span>e²ᵗ</span><span>(e²ᵗ−1)/2</span><span>0</span><span>eᵗ</span></span></span></div>
+        </div>
+      </article>
+
+      <!-- P6 -->
+      <article class="page" id="p6" data-label="06" data-title="Ejercicio 3·b · PVI">
+        <div class="eyebrow">06 · Ejercicio 3·b (0.5 pt) <span class="bar"></span></div>
+        <h2>Problema de valor inicial · x(0) = [0, 1]ᵀ</h2>
+        <p class="lede">Con Φ en mano, el PVI es un solo producto matriz-vector: x(t)=Φ(t,0)·x(0). Nada de volver a integrar.</p>
+        <div class="grid2">
+          <div class="card">
+            <div class="eq"><span class="vecwrap"><span class="mat c1"><span>x₁(t)</span><span>x₂(t)</span></span></span>=<span class="matwrap col-phi"><span class="mat c2"><span>e²ᵗ</span><span>(e²ᵗ−1)/2</span><span>0</span><span>eᵗ</span></span></span><span class="vecwrap"><span class="mat c1"><span>0</span><span>1</span></span></span></div>
+            <div class="eq center big">⇒ <span class="vecwrap col-phi"><span class="mat c1"><span>(e²ᵗ−1)/2</span><span>eᵗ</span></span></span></div>
+            <div class="readout">
+              <div class="rrow"><span>x₁(t)</span><span class="v col-phi">(e²ᵗ − 1)/2</span></div>
+              <div class="rrow"><span>x₂(t)</span><span class="v col-phi">eᵗ</span></div>
+            </div>
+            <p class="muted" style="font-size:13px">Chequeo: x₁(0)=0, x₂(0)=1 ✓. ẋ₂=eᵗ=x₂ ✓. ẋ₁=e²ᵗ = 2x₁+e<sup>−t</sup>x₂ = (e²ᵗ−1)+1 ✓.</p>
+          </div>
+          <div class="card">
+            <canvas id="c-ivp" aria-label="Trayectoria del PVI en el espacio de estados"></canvas>
+            <div class="controls">
+              <button class="btn" id="ivp-play">▶ animar trayectoria</button>
+              <div class="ctl" style="max-width:220px"><label>t <output id="ivp-t">0.0</output></label><input type="range" id="ivp-slider" min="0" max="100" value="0"></div>
+            </div>
+            <div class="legend"><span><i style="background:var(--phi)"></i>x(t)</span><span><i style="background:var(--ltv)"></i>campo A(t) se deforma</span></div>
+            <p class="muted" style="font-size:12.5px">Sistema <b>inestable</b> (autovalores 2 y 1 &gt; 0): el estado se escapa. El campo cambia con t — no hay retrato fijo.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- P7 -->
+      <article class="page" id="p7" data-label="07" data-title="Mapa de métodos · examen">
+        <div class="eyebrow">07 · Síntesis <span class="bar"></span></div>
+        <h2>Qué método usar según cómo sea A</h2>
+        <div class="method">
+          <div class="mcard"><h4>Exponencial e<sup>A(t−t₀)</sup></h4><div class="when">A CONSTANTE (LTI)</div><p>Autovalores/autovectores o serie/diagonalización. Módulos 1 y 2.</p></div>
+          <div class="mcard"><h4>Integración por componentes</h4><div class="when">A(t) TRIANGULAR o DESACOPLADA</div><p>Ecuación por ecuación (abajo→arriba), armás Ψ, normalizás Φ=ΨΨ(0)⁻¹. <b>El Ejercicio 3.</b></p></div>
+          <div class="mcard"><h4>Serie de Peano–Baker</h4><div class="when">GENERAL · A(t) no conmuta</div><p>Integrales anidadas. e<sup>∫A</sup> <b>solo</b> si A(t₁),A(t₂) conmutan ∀ t.</p></div>
+        </div>
+        <div class="exam" style="margin-top:20px">
+          <div class="lead">Patrón de examen · el reflejo correcto</div>
+          <ol>
+            <li><b>Primer reflejo:</b> ¿A es constante? Sí → e<sup>Aτ</sup>. No → seguí.</li>
+            <li><b>¿A(t) triangular / desacoplada?</b> Sí → integrá por componentes (como 3·a). El camino más pedido.</li>
+            <li><b>Nunca escribas e<sup>∫A</sup> sin justificar</b> que A(t) conmuta en tiempos distintos. Si no (test del conmutador), es error. Nombrá Peano–Baker.</li>
+            <li><b>Para un PVI</b> con Φ hallada: es solo <b>x(t)=Φ(t,t₀)x(t₀)</b>. Verificá Φ(t₀)=I y las condiciones iniciales.</li>
+            <li><b>Verificación universal:</b> Φ(t₀)=I y Φ′=AΦ. Si dan bien, tu Φ es correcta.</li>
+          </ol>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+<script>
+(function(){
+  "use strict";
+  // P3 commutator
+  (function(){
+    const t1=document.getElementById("s-t1"),t2=document.getElementById("s-t2");
+    function upd(){
+      const a=+t1.value,b=+t2.value;
+      document.getElementById("o-t1").textContent=a.toFixed(1);
+      document.getElementById("o-t2").textContent=b.toFixed(1);
+      const p12=2*Math.exp(-b)+Math.exp(-a), p21=2*Math.exp(-a)+Math.exp(-b);
+      document.getElementById("o-p12").textContent=p12.toFixed(4);
+      document.getElementById("o-p21").textContent=p21.toFixed(4);
+      const comm=Math.exp(-b)-Math.exp(-a); document.getElementById("o-comm").textContent=comm.toFixed(4);
+      const eq=Math.abs(comm)<1e-4; const p=document.getElementById("o-commp");
+      p.textContent=eq?"sí (t₁=t₂)":"NO"; p.className="pill "+(eq?"ok":"bad");
+    }
+    [t1,t2].forEach(s=>s.addEventListener("input",upd)); upd();
+  })();
+
+  // P3 numeric compare + bar
+  (function(){
+    const s=document.getElementById("s-tc"); const cv=document.getElementById("c-cmp");
+    function naiveOff(t){ const a=2*t,d=t,bb=1-Math.exp(-t); return bb*(Math.exp(a)-Math.exp(d))/(a-d); }
+    function upd(){
+      const t=+s.value; document.getElementById("o-tc").textContent=t.toFixed(2);
+      const tru=(Math.exp(2*t)-1)/2, nai=naiveOff(t);
+      document.getElementById("o-true").textContent=tru.toFixed(3);
+      document.getElementById("o-naive").textContent=nai.toFixed(3);
+      document.getElementById("o-err").textContent=(Math.abs(tru-nai)/tru*100).toFixed(1)+" %";
+      const f=PP.fit(cv,120); if(!f)return; const {ctx,w,h}=f; ctx.clearRect(0,0,w,h);
+      const max=Math.max(tru,nai,0.01), pad=10, bw=(w-3*pad)/2;
+      function bar(x,val,col,lab){ const bh=(h-30)*val/max; ctx.fillStyle=col; ctx.fillRect(x,h-20-bh,bw,bh);
+        ctx.fillStyle=PP.css("--ink"); ctx.font="12px ui-monospace,monospace"; ctx.textAlign="center";
+        ctx.fillText(val.toFixed(2),x+bw/2,h-24-bh); ctx.fillStyle=PP.css("--ink-soft"); ctx.fillText(lab,x+bw/2,h-6); }
+      bar(pad,tru,PP.css("--phi"),"Φ real"); bar(2*pad+bw,nai,PP.css("--ltv"),"e^∫A"); ctx.textAlign="left";
+    }
+    s.addEventListener("input",upd); PP.register(cv,upd);
+  })();
+
+  // P6 IVP trajectory with morphing field
+  (function(){
+    const cv=document.getElementById("c-ivp");
+    const slider=document.getElementById("ivp-slider"), out=document.getElementById("ivp-t");
+    const Tmax=1.45;
+    function state(t){ return [(Math.exp(2*t)-1)/2, Math.exp(t)]; }
+    const Altv=t=>[[2,Math.exp(-t)],[0,1]];
+    let playing=false;
+    function draw(){
+      const frac=+slider.value/100; const t=frac*Tmax; out.textContent=t.toFixed(2);
+      const f=PP.fit(cv,250); if(!f)return; const {ctx,w,h}=f; const tf=PP.makeTf(w,h,7,7);
+      PP.axes(ctx,tf); PP.field(ctx,tf,Altv,t,PP.css("--ltv"),0.12,9);
+      ctx.strokeStyle=PP.css("--phi"); ctx.lineWidth=2.6; ctx.beginPath();
+      const N=80; for(let i=0;i<=N;i++){ const tt=t*i/N; const p=state(tt); const px=tf.sx(p[0]),py=tf.sy(p[1]); i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.stroke();
+      const cur=state(t); PP.dot(ctx,tf,cur,PP.css("--phi"),5.5); PP.dot(ctx,tf,[0,1],PP.css("--ink-soft"),4);
+      ctx.fillStyle=PP.css("--ink-soft"); ctx.font="11px ui-monospace,monospace"; ctx.fillText("x(0)=[0,1]",tf.sx(0)+6,tf.sy(1)-6);
+    }
+    PP.register(cv,draw);
+    slider.addEventListener("input",()=>{playing=false;draw();});
+    document.getElementById("ivp-play").addEventListener("click",()=>{ if(PP.reduce){slider.value=100;draw();return;}
+      playing=true; slider.value=0; (function step(){ if(!playing)return; let v=+slider.value+1.1; if(v>=100){v=100;playing=false;} slider.value=v; draw(); if(playing)requestAnimationFrame(step); })(); });
+  })();
+})();
+</script>
+</body>
+</html>

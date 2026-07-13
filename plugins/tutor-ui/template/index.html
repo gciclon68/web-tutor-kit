@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi sitio · Tutor UI</title>
+<link rel="stylesheet" href="assets/shell.css">
+</head>
+<body>
+<div class="app" style="--nav:var(--ltv)">
+
+  <!-- ===== PANEL IZQUIERDO (25%, arrastrable) ===== -->
+  <nav class="sidenav">
+    <div class="brand">
+      <div class="eyebrow">Tu proyecto</div>
+      <h1>Título del<br>sitio</h1>
+    </div>
+    <ul class="navlist">
+      <li class="navcap">Índice</li>
+      <li><a href="index.html" class="active"><span class="mnum">◆</span><span class="mtxt"><b>Portada</b><small>Mapa</small></span></a></li>
+      <li class="navcap">Módulos</li>
+      <li><a href="1-modulo.html"><span class="mnum">1</span><span class="mtxt"><b>Módulo 1</b><small>Descripción corta</small></span></a></li>
+      <!-- copiá 1-modulo.html como 2-modulo.html, 3-modulo.html… y sumá links acá -->
+    </ul>
+    <div class="sidefoot">
+      <button class="themebtn" id="themebtn" aria-label="Cambiar tema">◐ tema</button>
+      <span class="tiny">local · offline</span>
+    </div>
+  </nav>
+
+  <!-- ===== CONTENIDO ===== -->
+  <main class="content">
+    <div class="hero">
+      <div class="eyebrow">Subtítulo · una línea</div>
+      <h2>Un título <em>grande</em><br>que explica el sitio</h2>
+      <p class="lede">Reemplazá este texto. Este es un sitio multipágina navegable: panel izquierdo para saltar entre módulos, panel de páginas dentro de cada módulo, tema oscuro por defecto, paneles ajustables, y un tutor de Claude Code embebido.</p>
+
+      <div class="enter">
+        <a class="ecard" href="1-modulo.html" style="--nav:var(--ltv)">
+          <span class="en" style="background:var(--ltv)">1</span>
+          <span class="et"><b>Módulo 1</b><small>De qué trata este módulo · N páginas</small></span>
+          <span class="ar">→</span>
+        </a>
+        <!-- duplicá esta tarjeta por cada módulo -->
+      </div>
+
+      <div class="callout" style="--nav:var(--ltv);margin-top:34px">
+        <b>Cómo navegar.</b> Panel <b>izquierdo</b> = módulos. Dentro de cada módulo, panel <b>derecho</b> = páginas (clic, botones <span class="k">◀ ▶</span> o flechas <b>← →</b>). Arrastrá el borde del panel izquierdo para ajustar su ancho. Botón <span class="k">Tutor</span> abajo a la derecha para chatear con Claude Code.
+      </div>
+      <p class="muted" style="font-size:13.5px;font-family:var(--mono)">Para el tutor: <span class="k">node chat-server.js</span> (o doble clic en <span class="k">iniciar-tutor.cmd</span>) y abrí <span class="k">http://localhost:8770</span>.</p>
+    </div>
+  </main>
+</div>
+<script src="assets/plot.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/tutor.js"></script>
+</body>
+</html>
