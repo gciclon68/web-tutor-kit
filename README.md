@@ -10,12 +10,12 @@ embebido que habla con tu CLI `claude` (misma suscripción, sin API key) y rende
 En cualquier sesión de Claude Code:
 
 ```
-/plugin marketplace add D:\ClaudeRepo\web-tutor-kit
+/plugin marketplace add https://github.com/gciclon68/web-tutor-kit
 /plugin install tutor-ui@jolo-plugins
 ```
 
-> `marketplace add` acepta una ruta local o una URL de git. Si más adelante subís esta
-> carpeta a git, podés hacer `/plugin marketplace add <git-url>` desde cualquier máquina.
+> También desde una copia local: `/plugin marketplace add D:\ClaudeRepo\web-tutor-kit`.
+> `marketplace add` acepta una ruta local o una URL de git.
 
 Para desarrollo/prueba sin instalar, también podés cargarlo suelto:
 ```
