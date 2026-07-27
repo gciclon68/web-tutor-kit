@@ -1,0 +1,6 @@
+# Config local del sitio (puede tener una API key) — nunca commitear.
+tutor.config.json
+
+# Material extra del usuario: se queda local.
+RAW/*
+!RAW/LEEME.md

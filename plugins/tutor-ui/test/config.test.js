@@ -84,6 +84,18 @@ test("resolve never mutates DEFAULTS", () => {
   assert.equal(c.models.opus, "claude-opus-5");
 });
 
+test("load tolerates a config file saved with a UTF-8 BOM", () => {
+  const fs = require("node:fs");
+  const os = require("node:os");
+  const path = require("node:path");
+  const siteDir = fs.mkdtempSync(path.join(os.tmpdir(), "tt-bom-"));
+  fs.writeFileSync(path.join(siteDir, "tutor.config.json"),
+                   "﻿" + JSON.stringify({ provider: "api", port: 4242 }), "utf8");
+  const r = cfgmod.load({ siteDir: siteDir, env: {}, flags: {} });
+  assert.equal(r.cfg.provider, "api");
+  assert.equal(r.cfg.port, 4242);
+});
+
 test("save writes 0600 JSON that load can read back", () => {
   const fs = require("node:fs");
   const os = require("node:os");

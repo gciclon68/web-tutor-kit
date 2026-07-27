@@ -212,8 +212,22 @@ async function main() {
 
   let cfg = cfgmod.load({ siteDir: siteDir, flags: flags }).cfg;
   if (flags.reconfigure || cfgmod.needsSetup(cfg)) {
-    await cfgmod.runWizard({ siteDir: siteDir, flags: flags });
+    try {
+      await cfgmod.runWizard({ siteDir: siteDir, flags: flags });
+    } catch (e) {
+      console.log("");
+      console.log("  ❌ " + (e.userMessage || e.message));
+      console.log("");
+      process.exit(1);
+    }
     cfg = cfgmod.load({ siteDir: siteDir, flags: flags }).cfg;
+    if (cfgmod.needsSetup(cfg)) {
+      console.log("");
+      console.log("  ❌ La configuración quedó incompleta — no arranco.");
+      console.log("     Probá de nuevo: node chat-server.js --reconfigure");
+      console.log("");
+      process.exit(1);
+    }
   }
 
   // resolvemos el binario una vez y lo cacheamos: así no dependemos del PATH
