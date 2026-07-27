@@ -1,14 +1,16 @@
 /* =====================================================================
-   Tutor bridge (genérico) · sirve el sitio y conecta el panel de chat
-   con el CLI `claude` ya logueado (misma suscripción, sin API key).
+   Tutor bridge · sirve el sitio y conecta el panel de chat con Claude.
 
    Uso:
-     node chat-server.js
-   Luego abrí:  http://localhost:8770
+     node chat-server.js                  arranca (pregunta la primera vez)
+     node chat-server.js --reconfigure    vuelve a preguntar
+     node chat-server.js --port 9000      fuerza un puerto
+     node chat-server.js --no-open        no abre el navegador
 
-   - Corre en ESTA carpeta, así `claude` lee CONTEXTO.md y los .html directamente.
-   - El mensaje del usuario viaja por STDIN (evita problemas de comillas en Windows).
-   - Configurable con variables de entorno:  PORT, TUTOR_NAME.
+   La primera vez pregunta cómo hablar con Claude (CLI logueado o API key)
+   y lo guarda en ~/.tutor-ui/config.json. Después no vuelve a preguntar.
+
+   El link real se imprime al arrancar: si 8770 está ocupado, sube solo.
    ===================================================================== */
 "use strict";
 const http = require("http");
@@ -16,124 +18,286 @@ const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
 
-const PORT = parseInt(process.env.PORT, 10) || 8770;
-const TUTOR_NAME = process.env.TUTOR_NAME || "Tutor";
-const SITE = __dirname;
+const cfgmod = require("./lib/config.js");
+
 const IS_WIN = process.platform === "win32";
+const PORT_RETRIES = 10;
 
 const MIME = { ".html":"text/html; charset=utf-8", ".css":"text/css", ".js":"text/javascript",
                ".md":"text/markdown; charset=utf-8", ".json":"application/json", ".svg":"image/svg+xml",
                ".png":"image/png", ".jpg":"image/jpeg", ".woff2":"font/woff2" };
 
-// Contexto que se antepone SOLO en el primer turno (después queda en la sesión de claude).
-const PREAMBLE =
-`Actuás como "${TUTOR_NAME}", un asistente integrado en un sitio local de estudio/referencia.
-El material vive en esta carpeta: leé CONTEXTO.md (si existe) y los archivos .html para tener el contexto exacto de lo que el usuario está mirando. Respondé en el mismo idioma que use la persona, claro y conciso.
+/* ------------------------------------------------------------ estáticos */
 
-FORMATO DE RESPUESTA: el panel renderiza Markdown (GitHub-flavored) y LaTeX vía MathJax. Aprovechalo:
-- Markdown: encabezados, **negrita**, listas, código, y TABLAS con | pipes | cuando compares o resumas.
-- LaTeX para la matemática: inline $...$ y display $$...$$. Matrices reales con \\begin{bmatrix}...\\end{bmatrix} (nunca [[...]] en texto plano).
-- Usá algún emoji con moderación para dar tono/claridad (✅ ⚠️ 📌 🔑), sin abusar.
-
-TRANSPARENCIA DE CONTEXTO: cuando uses información de un archivo o página específica, avisalo brevemente (ej.: "📖 según CONTEXTO.md…" o "📄 mirando pagina-X.html…"). Si algo no está en el material, decilo en vez de inventar.
-MATERIAL EXTRA: el usuario puede dejar archivos en la carpeta RAW/ (dentro de esta carpeta). Si RAW/ tiene archivos relevantes para la consulta, leelos y mencioná que los usaste.
-
-A continuación viene la consulta del usuario:
-`;
-
-function serveStatic(req, res){
+function serveStatic(siteDir, req, res) {
   let p = decodeURIComponent(req.url.split("?")[0]);
   if (p === "/") p = "/index.html";
-  const fp = path.join(SITE, path.normalize(p).replace(/^(\.\.[\/\\])+/, ""));
-  if (!fp.startsWith(SITE)) { res.writeHead(403); return res.end("forbidden"); }
-  fs.readFile(fp, (e, data) => {
+  const clean = path.normalize(p).replace(/^([\\/]|\.\.[\\/])+/, "");
+  const fp = path.resolve(siteDir, clean);
+  const root = path.resolve(siteDir);
+  if (fp !== root && !fp.startsWith(root + path.sep)) { res.writeHead(403); return res.end("forbidden"); }
+  fs.readFile(fp, function (e, data) {
     if (e) { res.writeHead(404); return res.end("404"); }
     res.writeHead(200, { "Content-Type": MIME[path.extname(fp)] || "application/octet-stream" });
     res.end(data);
   });
 }
 
-function q(s){ return IS_WIN ? ('"' + String(s).replace(/"/g, "") + '"') : s; }  // rutas con espacios en shell:true
+/* --------------------------------------------------- abrir carpeta en SO */
 
-function askClaude(message, sessionId, opts, cb){
-  opts = opts || {};
-  const args = ["-p", "--output-format", "json", "--allowedTools", "Read,Grep,Glob"];
-  if (opts.model) args.push("--model", opts.model);
-  if (Array.isArray(opts.extraDirs)) {
-    opts.extraDirs.forEach(function(d){ try { if (d && fs.existsSync(d)) args.push("--add-dir", q(d)); } catch(e){} });
-  }
-  if (sessionId) args.push("--resume", sessionId);
-
-  let child;
-  try { child = spawn("claude", args, { cwd: SITE, shell: IS_WIN, stdio: ["pipe","pipe","pipe"] }); }
-  catch (err) { return cb({ error: "No pude ejecutar `claude`. ¿Está instalado y en el PATH? (" + err.message + ")" }); }
-
-  let out = "", err = "";
-  const killer = setTimeout(() => { try { child.kill(); } catch(_){} }, 180000);
-  child.on("error", (e) => { clearTimeout(killer);
-    cb({ error: "No pude ejecutar `claude` (" + e.message + "). Verificá que el CLI de Claude Code esté instalado y logueado." }); });
-  child.stdout.on("data", d => out += d);
-  child.stderr.on("data", d => err += d);
-  child.on("close", (code) => {
-    clearTimeout(killer);
-    if (code !== 0) return cb({ error: "El CLI devolvió código " + code + (err ? (": " + err.trim().slice(0,400)) : "") });
-    let reply = "", sid = sessionId || null;
-    try { const j = JSON.parse(out); reply = (typeof j.result === "string") ? j.result : (j.text || JSON.stringify(j)); sid = j.session_id || j.sessionId || sid; }
-    catch (e) { reply = out.trim() || "(sin salida del CLI)"; }
-    cb({ reply: reply, sessionId: sid });
-  });
-
-  // primer turno: contexto completo. Cada turno: recordatorio de formato.
-  const HINT = "\n\n[Formato: respondé en Markdown; usá LaTeX para la matemática ($...$ y $$...$$) y matrices reales con \\begin{bmatrix}...\\end{bmatrix} (nunca [[...]]); algún emoji con moderación.]";
-  const payload = (sessionId ? message : (PREAMBLE + message)) + HINT;
-  child.stdin.write(payload);
-  child.stdin.end();
-}
-
-// abrir una carpeta (dentro del sitio) en el explorador del SO
-function openFolder(target, cb){
-  const safe = path.normalize(String(target || "")).replace(/^(\.\.[\/\\])+/, "");
-  const dir = path.join(SITE, safe);
-  if (!dir.startsWith(SITE)) return cb({ error: "ruta no permitida" });
-  try { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); } catch(e){}
+function openFolder(siteDir, target, cb) {
+  const safe = path.normalize(String(target || "")).replace(/^([\\/]|\.\.[\\/])+/, "");
+  const dir = path.resolve(siteDir, safe);
+  const root = path.resolve(siteDir);
+  if (dir !== root && !dir.startsWith(root + path.sep)) return cb({ error: "ruta no permitida" });
+  try { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); } catch (e) {}
   let cmd = "xdg-open";
   if (IS_WIN) cmd = "explorer.exe"; else if (process.platform === "darwin") cmd = "open";
   try {
     const c = spawn(cmd, [dir], { detached: true, stdio: "ignore" });
-    c.on("error", function(e){ cb({ error: e.message }); });
+    c.on("error", function (e) { cb({ error: e.message }); });
     if (c.unref) c.unref();
     cb({ ok: true, dir: dir });
   } catch (e) { cb({ error: e.message }); }
 }
 
-const server = http.createServer((req, res) => {
-  if (req.method === "POST" && req.url === "/api/ask") {
-    let body = "";
-    req.on("data", c => { body += c; if (body.length > 1e6) req.destroy(); });
-    req.on("end", () => {
-      let msg = "", sid = null, model = "", extraDirs = [];
-      try { const j = JSON.parse(body); msg = (j.message||"").toString(); sid = j.sessionId || null;
-            model = (j.model||"").toString(); extraDirs = Array.isArray(j.extraDirs) ? j.extraDirs : []; } catch(e){}
-      if (!msg.trim()) { res.writeHead(400,{ "Content-Type":"application/json" }); return res.end(JSON.stringify({ error:"mensaje vacío" })); }
-      askClaude(msg, sid, { model: model, extraDirs: extraDirs }, (result) => { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify(result)); });
-    });
-    return;
-  }
-  if (req.method === "POST" && req.url === "/api/open") {
-    let body = "";
-    req.on("data", c => { body += c; if (body.length > 1e5) req.destroy(); });
-    req.on("end", () => {
-      let target = "RAW";
-      try { target = JSON.parse(body).target || "RAW"; } catch(e){}
-      openFolder(target, (r) => { res.writeHead(200, { "Content-Type":"application/json" }); res.end(JSON.stringify(r)); });
-    });
-    return;
-  }
-  serveStatic(req, res);
-});
+function openBrowser(url) {
+  try {
+    if (IS_WIN) spawn("cmd", ["/c", "start", "", url], { detached: true, stdio: "ignore", windowsHide: true }).unref();
+    else if (process.platform === "darwin") spawn("open", [url], { detached: true, stdio: "ignore" }).unref();
+    else spawn("xdg-open", [url], { detached: true, stdio: "ignore" }).unref();
+  } catch (e) { /* no pasa nada si no se puede */ }
+}
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log("\n  " + TUTOR_NAME + " bridge activo.");
-  console.log("  Abrí:  http://localhost:" + PORT + "\n");
-  console.log("  (usa tu CLI `claude` logueado · misma suscripción · Ctrl+C para salir)\n");
-});
+/* ---------------------------------------------------------------- server */
+
+function readBody(req, limit) {
+  return new Promise(function (resolve) {
+    let body = "";
+    req.on("data", function (c) { body += c; if (body.length > limit) req.destroy(); });
+    req.on("end", function () { resolve(body); });
+  });
+}
+
+function createServer(o) {
+  o = o || {};
+  const cfg = o.cfg || {};
+  const provider = o.provider;
+  const siteDir = o.siteDir || process.cwd();
+
+  const health = {
+    provider: cfg.provider || "?",
+    stage: "probing",
+    detail: "",
+    model: "",
+    port: 0,
+    configPath: cfgmod.configPath(),
+    probe: async function () {
+      try {
+        const r = await provider.check();
+        health.stage = r.ok ? "ok" : "fail";
+        health.detail = r.detail || "";
+        health.model = r.model || "";
+      } catch (e) {
+        health.stage = "fail";
+        health.detail = e.userMessage || e.message || "falló el chequeo";
+      }
+      return health;
+    }
+  };
+
+  const server = http.createServer(async function (req, res) {
+    if (req.method === "GET" && req.url.split("?")[0] === "/api/health") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({
+        provider: health.provider, stage: health.stage, detail: health.detail,
+        model: health.model, port: health.port, configPath: health.configPath
+      }));
+    }
+
+    if (req.method === "POST" && req.url === "/api/ask") {
+      const body = await readBody(req, 1e6);
+      let msg = "", sid = null, model = "", extraDirs = [], page = "/";
+      try {
+        const j = JSON.parse(body);
+        msg = (j.message || "").toString();
+        sid = j.sessionId || null;
+        model = (j.model || "").toString();
+        extraDirs = Array.isArray(j.extraDirs) ? j.extraDirs : [];
+        page = (j.page || "/").toString();
+      } catch (e) {}
+      if (!msg.trim()) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "mensaje vacío" }));
+      }
+      try {
+        const r = await provider.ask({ message: msg, sessionId: sid, model: model,
+                                       extraDirs: extraDirs, page: page });
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(r));
+      } catch (e) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.userMessage || e.message || "error desconocido" }));
+      }
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/api/open") {
+      const body = await readBody(req, 1e5);
+      let target = "RAW";
+      try { target = JSON.parse(body).target || "RAW"; } catch (e) {}
+      return openFolder(siteDir, target, function (r) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(r));
+      });
+    }
+
+    serveStatic(siteDir, req, res);
+  });
+
+  function listenWithRetry(startPort) {
+    let attempt = 0;
+    const first = typeof startPort === "number" ? startPort : (cfg.port || 8770);
+    return new Promise(function (resolve, reject) {
+      function tryPort(p) {
+        function onError(err) {
+          if (err && err.code === "EADDRINUSE" && attempt < PORT_RETRIES && p !== 0) {
+            attempt++;
+            console.log("  (puerto " + p + " ocupado, probando " + (p + 1) + ")");
+            server.removeListener("error", onError);
+            setImmediate(function () { tryPort(p + 1); });
+            return;
+          }
+          server.removeListener("error", onError);
+          reject(err);
+        }
+        server.once("error", onError);
+        server.listen(p, "127.0.0.1", function () {
+          server.removeListener("error", onError);
+          health.port = server.address().port;
+          resolve(health.port);
+        });
+      }
+      tryPort(first);
+    });
+  }
+
+  return { server: server, health: health, listenWithRetry: listenWithRetry };
+}
+
+/* ------------------------------------------------------------------ main */
+
+function parseFlags(argv) {
+  const flags = {};
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--port" && argv[i + 1]) { const n = parseInt(argv[++i], 10); if (!isNaN(n)) flags.port = n; }
+    else if (a.startsWith("--port=")) { const n = parseInt(a.slice(7), 10); if (!isNaN(n)) flags.port = n; }
+    else if (a === "--no-open") flags.noOpen = true;
+    else if (a === "--reconfigure") flags.reconfigure = true;
+  }
+  return flags;
+}
+
+function buildProvider(cfg, siteDir) {
+  const mod = cfg.provider === "api"
+    ? require("./lib/providers/api.js")
+    : require("./lib/providers/cli.js");
+  return mod.create(cfg, { siteDir: siteDir, tutorName: cfg.tutorName || "Tutor", env: process.env });
+}
+
+async function main() {
+  const siteDir = __dirname;
+  const flags = parseFlags(process.argv.slice(2));
+
+  let cfg = cfgmod.load({ siteDir: siteDir, flags: flags }).cfg;
+  if (flags.reconfigure || cfgmod.needsSetup(cfg)) {
+    try {
+      await cfgmod.runWizard({ siteDir: siteDir, flags: flags });
+    } catch (e) {
+      console.log("");
+      console.log("  ❌ " + (e.userMessage || e.message));
+      console.log("");
+      process.exit(1);
+    }
+    cfg = cfgmod.load({ siteDir: siteDir, flags: flags }).cfg;
+    if (cfgmod.needsSetup(cfg)) {
+      console.log("");
+      console.log("  ❌ La configuración quedó incompleta — no arranco.");
+      console.log("     Probá de nuevo: node chat-server.js --reconfigure");
+      console.log("");
+      process.exit(1);
+    }
+  }
+
+  // resolvemos el binario una vez y lo cacheamos: así no dependemos del PATH
+  // del proceso que nos lanzó (que en Windows suele estar viejo)
+  if (cfg.provider === "cli" && !(cfg.cli && cfg.cli.bin)) {
+    const resolved = require("./lib/providers/cli.js").resolveBin(cfg);
+    if (resolved) {
+      cfg.cli = Object.assign({}, cfg.cli, { bin: resolved });
+      cfgmod.patchHome({ cli: { bin: resolved } });
+    }
+  }
+
+  const provider = buildProvider(cfg, siteDir);
+
+  // chequeo rápido: si esto falla, no tiene sentido levantar nada
+  const fast = await provider.checkFast();
+  if (!fast.ok) {
+    console.log("");
+    console.log("  ❌ El tutor no puede arrancar:");
+    console.log("     " + fast.detail);
+    console.log("");
+    console.log("     Config: " + cfgmod.configPath());
+    console.log("     Reconfigurar: node chat-server.js --reconfigure");
+    console.log("");
+    process.exit(1);
+  }
+
+  const h = createServer({ cfg: cfg, provider: provider, siteDir: siteDir });
+  let port;
+  try {
+    port = await h.listenWithRetry(cfg.port);
+  } catch (e) {
+    console.log("");
+    console.log("  ❌ No pude abrir ningún puerto entre " + cfg.port + " y " + (cfg.port + PORT_RETRIES) + ".");
+    console.log("     Probá:  node chat-server.js --port 9100");
+    console.log("");
+    process.exit(1);
+  }
+
+  const url = "http://localhost:" + port;
+
+  // el chequeo profundo (¿está logueado? ¿la key sirve?) corre de fondo
+  h.health.probe().then(function (st) {
+    if (st.stage === "fail") {
+      console.log("");
+      console.log("  ⚠️  El chat no va a responder: " + st.detail);
+      console.log("     El sitio igual se ve en " + url);
+      console.log("");
+    }
+  });
+
+  const label = cfg.provider === "api" ? "API" : "CLI";
+  console.log("");
+  console.log("  ✅ Tutor listo · " + label + " · " + (cfg.models && cfg.models[cfg.models.default] || ""));
+  console.log("");
+  console.log("     👉  " + url);
+  console.log("");
+  console.log("  (Ctrl+C para salir · config: " + cfgmod.configPath() + ")");
+  console.log("");
+
+  if (cfg.openBrowser) openBrowser(url);
+}
+
+if (require.main === module) {
+  main().catch(function (e) {
+    console.error("");
+    console.error("  ❌ " + (e && (e.userMessage || e.message) || e));
+    console.error("");
+    process.exit(1);
+  });
+}
+
+module.exports = { createServer, parseFlags, serveStatic, openFolder };

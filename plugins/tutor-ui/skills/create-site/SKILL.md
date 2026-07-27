@@ -44,14 +44,42 @@ Un sitio local, offline, con:
 
 5. **Referencia completa y trabajada:** mirá el ejemplo `${CLAUDE_PLUGIN_ROOT}/examples/espacio-estados/` — un sitio real (matriz fundamental y de transición, LTI/LTV) que usa todo el framework: sliders, retratos de fase en canvas, demostraciones paso a paso, tablas y LaTeX en el tutor. Copiá patrones de ahí.
 
-6. **Verificá** levantando el sitio (si es posible) y probando navegación + una consulta al tutor. Ver la sección de ejecución.
+6. **Verificá** levantando el sitio y probando navegación + una consulta al tutor.
+
+7. **Entregá el link (OBLIGATORIO).** No termines sin esto:
+   1. Arrancá el bridge en segundo plano desde la carpeta del sitio: `node chat-server.js --no-open`
+   2. Leé el puerto real del banner que imprime (si 8770 estaba ocupado, subió solo).
+   3. Poleá `GET http://localhost:<port>/api/health` cada 2s (máximo 30s) hasta que
+      `stage` deje de ser `"probing"`.
+   4. Reportale al usuario el link **http://localhost:&lt;port&gt;** como link clickeable,
+      junto con el estado del tutor.
+   5. Si `stage === "fail"`: reportá el campo `detail` y cómo arreglarlo.
+      **NO declares el sitio terminado.**
 
 ## Cómo se ejecuta (decíselo al usuario)
-- Solo lectura del sitio: doble clic en `index.html` (funciona en `file://`, sin tutor).
-- Con tutor: `node chat-server.js` (o doble clic en `iniciar-tutor.cmd`; en mac/linux `./iniciar-tutor.sh`) y abrir **http://localhost:8770** — el tutor solo funciona servido por el bridge, no en `file://`.
-- Requisitos: Node.js y el CLI `claude` instalado y logueado.
+
+- **Primera vez:** `node chat-server.js` pregunta cómo hablar con Claude —
+  (1) el CLI `claude` ya logueado (tu suscripción, sin API key) o (2) una API key de
+  Anthropic con su base URL. La respuesta se guarda en `~/.tutor-ui/config.json` y
+  **no vuelve a preguntar** en esa computadora.
+- **Después:** `node chat-server.js` (o doble clic en `iniciar-tutor.cmd`; en mac/linux
+  `./iniciar-tutor.sh`). Imprime el link real y abre el navegador solo.
+- **Flags:** `--reconfigure` (volver a preguntar), `--port 9000` (forzar puerto),
+  `--no-open` (no abrir el navegador).
+- Solo lectura del sitio: doble clic en `index.html` funciona, pero **el chat no** —
+  el panel muestra una tarjeta explicando cómo arrancar el bridge.
+- Requisitos: **Node.js 18+**, y el CLI `claude` logueado (modo CLI) o una API key (modo API).
+- El modo API **se cobra por mensaje** y sus sesiones viven en memoria: si reiniciás el
+  server, los chats abiertos arrancan de cero (el panel lo avisa). El modo CLI no tiene
+  ninguna de esas dos limitaciones.
 
 ## Notas
 - Todo es offline: `marked` y `MathJax` están vendorizados en `assets/vendor/`.
 - El bridge escucha solo en `127.0.0.1` y habilita al CLI solo herramientas de lectura (`Read,Grep,Glob`).
-- Configurable por entorno: `PORT` y `TUTOR_NAME` (ej: `TUTOR_NAME="Profe" PORT=9000 node chat-server.js`).
+- Config por capas (gana el primero): flags → entorno (`TUTOR_PROVIDER`, `ANTHROPIC_API_KEY`,
+  `ANTHROPIC_BASE_URL`, `PORT`, `TUTOR_NAME`) → `<sitio>/tutor.config.json` →
+  `~/.tutor-ui/config.json` → defaults.
+- La API key se prefiere leerla de la variable de entorno; si el usuario la pega en el
+  wizard queda en `~/.tutor-ui/config.json` con permisos `0600` (el wizard lo avisa).
+- El código del bridge vive en `lib/`: `config.js`, `context.js` y `providers/{cli,api}.js`.
+  Cero dependencias — no hace falta `npm install`.

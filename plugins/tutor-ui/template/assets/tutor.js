@@ -144,6 +144,19 @@
     + '.tt-chat-del{background:none;border:none;color:var(--ink-soft);font-size:15px;line-height:1;cursor:pointer;opacity:0;padding:0 2px}'
     + '.tt-chat:hover .tt-chat-del{opacity:.7}'
     + '.tt-chat-del:hover{opacity:1;color:var(--bad)}'
+    // --- pill de estado del bridge ---
+    + '.tt-pill{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);'
+    + 'font-size:10.5px;border:1px solid var(--line);border-radius:20px;padding:2px 8px;cursor:default;background:var(--bg);white-space:nowrap}'
+    + '.tt-pill.ok{color:#3fb950;border-color:currentColor}'
+    + '.tt-pill.fail{color:var(--bad,#f85149);border-color:currentColor;cursor:pointer}'
+    + '.tt-pill.probing{color:var(--ink-soft)}'
+    + '.tt-head .x{margin-left:8px}'
+    // --- tarjeta de "arrancá el bridge" cuando se abre como file:// ---
+    + '.tt-filecard{padding:20px 18px;font-size:13.5px;line-height:1.6;color:var(--ink);overflow-y:auto}'
+    + '.tt-filecard h4{margin:0 0 10px;font-size:15px;color:var(--bad,#f85149)}'
+    + '.tt-filecard ol{margin:10px 0;padding-left:1.3em}.tt-filecard li{margin:6px 0}'
+    + '.tt-filecard code{font-family:var(--mono);font-size:12.5px;background:rgba(127,127,127,.18);padding:2px 6px;border-radius:5px;display:inline-block}'
+    + '.tt-filecard .why{color:var(--ink-soft);font-size:12.5px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}'
     // --- toolbar del encabezado: modelo + carpetas ---
     + '.tt-head-t{min-width:0}'
     + '.tt-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--surface)}'
@@ -160,6 +173,63 @@
   }
 
   var elMsgs, elText, elSend, panel, typingEl, dotsEl, dots = [], fab, chatListEl, chatState, modelEl, dirsEl, ctxDirs = [];
+  var pillEl, healthState = { stage: "probing", detail: "" }, healthPolls = 0;
+
+  // ---- estado del bridge: ⚪ probando → 🟢 listo / 🔴 error --------------
+  function renderPill(){
+    if (!pillEl) return;
+    var s = healthState.stage || "probing";
+    pillEl.className = "tt-pill " + s;
+    pillEl.textContent = s === "ok" ? "🟢 listo" : (s === "fail" ? "🔴 error" : "⚪ probando…");
+    pillEl.title = healthState.detail || (s === "ok" ? "El tutor puede responder." : "Chequeando el tutor…");
+    if (elSend) elSend.disabled = (s === "fail");
+  }
+  function pollHealth(){
+    fetch("/api/health").then(function(r){ return r.json(); }).then(function(h){
+      var was = healthState.stage;
+      healthState = h || healthState;
+      renderPill();
+      if (healthState.stage === "probing" && ++healthPolls < 20){ setTimeout(pollHealth, 3000); return; }
+      if (healthState.stage === "fail" && was !== "fail"){
+        addMsg("sys", "⚠️ " + (healthState.detail || "el tutor no está disponible")
+                    + (healthState.configPath ? ("\nConfig: " + healthState.configPath) : ""), false);
+      }
+    }).catch(function(){
+      healthState = { stage: "fail", detail: "No hay conexión con el bridge. ¿Está corriendo `node chat-server.js`?" };
+      renderPill();
+    });
+  }
+
+  // ---- abierto como archivo (file://): el chat no puede funcionar --------
+  function buildFileCard(){
+    styles();
+    fab = document.createElement("button");
+    fab.className = "tt-fab"; fab.setAttribute("aria-label","Abrir tutor");
+    fab.innerHTML = '<span class="dot"></span>Tutor Claude Code';
+    document.body.appendChild(fab);
+
+    panel = document.createElement("div"); panel.className = "tt-panel";
+    panel.setAttribute("role","dialog"); panel.setAttribute("aria-label","Tutor");
+    panel.innerHTML =
+      '<div class="tt-head"><div class="av">✦</div><div class="tt-head-t"><b>Tutor · Claude Code</b>'
+    + '<small>necesita el bridge</small></div><button class="x" aria-label="Cerrar">×</button></div>'
+    + '<div class="tt-filecard">'
+    +   '<h4>⚠️ El tutor necesita el bridge</h4>'
+    +   '<div>Abriste el sitio como archivo (<code>file://</code>). El chat no puede funcionar así.</div>'
+    +   '<ol>'
+    +     '<li>Abrí una terminal en la carpeta del sitio</li>'
+    +     '<li>Ejecutá <code>node chat-server.js</code></li>'
+    +     '<li>Abrí el link que imprime (ej. <code>http://localhost:8770</code>)</li>'
+    +   '</ol>'
+    +   '<div>En Windows también podés hacer doble clic en <code>iniciar-tutor.cmd</code>.</div>'
+    +   '<div class="why">El resto del sitio (páginas, gráficos, navegación) funciona igual sin el bridge — '
+    +   'lo único que necesita el server es el chat.</div>'
+    + '</div>';
+    document.body.appendChild(panel);
+
+    fab.addEventListener("click", function(){ openPanel(true); });
+    panel.querySelector(".x").addEventListener("click", function(){ openPanel(false); });
+  }
 
   function addDot(msgEl){
     if (!dotsEl) return;
@@ -213,12 +283,14 @@
       body: JSON.stringify({ message: msg, sessionId: active().sessionId, model: (modelEl && modelEl.value) || "", extraDirs: ctxDirs, page: location.pathname })
     }).then(function(r){ return r.json(); }).then(function(data){
       showTyping(false); elSend.disabled=false;
-      if (data.error){ addMsg("bot", "⚠️ " + data.error); return; }
+      if (data.error){ addMsg("bot", "⚠️ " + data.error); pollHealth(); return; }
+      if (data.reset) addMsg("sys", "↻ Se reinició el hilo (el servidor se reinició).", false);
       if (data.sessionId){ active().sessionId = data.sessionId; saveChats(); }
       addMsg("bot", data.reply || "(sin respuesta)");
     }).catch(function(){
       showTyping(false); elSend.disabled=false;
-      addMsg("sys", "No hay conexión con el tutor. Arrancá el bridge:\nnode chat-server.js\ny abrí el sitio en http://localhost:8770");
+      addMsg("sys", "No hay conexión con el tutor. Arrancá el bridge:\nnode chat-server.js\ny abrí el link que imprime.");
+      pollHealth();
     });
   }
 
@@ -291,6 +363,8 @@
   }
 
   function build(){
+    // sin bridge no hay chat: mostramos cómo arrancarlo en vez de fallar callados
+    if (location.protocol === "file:") { buildFileCard(); return; }
     styles();
     loadDeps();
     fab = document.createElement("button");
@@ -300,7 +374,9 @@
 
     panel = document.createElement("div"); panel.className="tt-panel"; panel.setAttribute("role","dialog"); panel.setAttribute("aria-label","Tutor");
     panel.innerHTML =
-      '<div class="tt-head"><div class="av">✦</div><div class="tt-head-t"><b>Tutor · Claude Code</b><small>carpeta del proyecto · CONTEXTO.md + RAW/</small></div><button class="x" aria-label="Cerrar">×</button></div>'
+      '<div class="tt-head"><div class="av">✦</div><div class="tt-head-t"><b>Tutor · Claude Code</b><small>carpeta del proyecto · CONTEXTO.md + RAW/</small></div>'
+    + '<span class="tt-pill probing" id="tt-pill" title="Chequeando el tutor…">⚪ probando…</span>'
+    + '<button class="x" aria-label="Cerrar">×</button></div>'
     + '<div class="tt-toolbar">'
     +   '<select id="tt-model" class="tt-model" title="Modelo de Claude a usar">'
     +     '<option value="">Modelo: por defecto</option>'
@@ -385,6 +461,11 @@
     panel.querySelector(".tt-form").addEventListener("submit", function(e){ e.preventDefault(); send(); });
     elText.addEventListener("input", function(){ elText.style.height="auto"; elText.style.height=Math.min(elText.scrollHeight,120)+"px"; });
     elText.addEventListener("keydown", function(e){ if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
+
+    // estado del bridge: se chequea al cargar, sin esperar a la primera pregunta
+    pillEl = panel.querySelector("#tt-pill");
+    pillEl.addEventListener("click", function(){ if (healthState.stage === "fail"){ healthPolls = 0; pollHealth(); } });
+    pollHealth();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build);

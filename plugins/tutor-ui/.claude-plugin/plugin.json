@@ -1,7 +1,7 @@
 {
   "name": "tutor-ui",
-  "description": "Framework para sitios HTML multipágina (navegación por módulos + tema oscuro + paneles ajustables) con un panel de chat 'Tutor' embebido que habla con tu CLI `claude` vía un bridge Node local. Renderiza Markdown y LaTeX. Incluye una skill que lo scaffoldea en cualquier proyecto y un ejemplo completo.",
-  "version": "1.0.0",
+  "description": "Framework para sitios HTML multipágina (navegación por módulos + tema oscuro + paneles ajustables) con un panel de chat 'Tutor' embebido que habla con tu CLI `claude` logueado o con la API de Anthropic. Renderiza Markdown y LaTeX. Se configura una sola vez por máquina, verifica que el chat funcione antes de que preguntes, y siempre te da el link real donde abrirlo. Incluye una skill que lo scaffoldea en cualquier proyecto y un ejemplo completo.",
+  "version": "2.0.0",
   "author": { "name": "Jolo" },
   "license": "MIT",
   "keywords": ["html", "study-guide", "documentation", "claude-code", "tutor", "markdown", "latex", "offline"]
