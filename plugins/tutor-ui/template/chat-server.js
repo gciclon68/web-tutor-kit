@@ -216,6 +216,16 @@ async function main() {
     cfg = cfgmod.load({ siteDir: siteDir, flags: flags }).cfg;
   }
 
+  // resolvemos el binario una vez y lo cacheamos: así no dependemos del PATH
+  // del proceso que nos lanzó (que en Windows suele estar viejo)
+  if (cfg.provider === "cli" && !(cfg.cli && cfg.cli.bin)) {
+    const resolved = require("./lib/providers/cli.js").resolveBin(cfg);
+    if (resolved) {
+      cfg.cli = Object.assign({}, cfg.cli, { bin: resolved });
+      cfgmod.patchHome({ cli: { bin: resolved } });
+    }
+  }
+
   const provider = buildProvider(cfg, siteDir);
 
   // chequeo rápido: si esto falla, no tiene sentido levantar nada

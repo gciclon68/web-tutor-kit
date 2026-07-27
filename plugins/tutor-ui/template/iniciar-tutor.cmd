@@ -2,18 +2,21 @@
 cd /d "%~dp0"
 echo.
 echo   ============================================
-echo    Tutor UI  -  bridge local (Claude Code)
+echo    Tutor UI  -  bridge local
 echo   ============================================
 echo.
-echo    Cuando aparezca "bridge activo", abri en el navegador:
+echo    La primera vez te va a preguntar como hablar
+echo    con Claude (CLI logueado o API key).
 echo.
-echo        http://localhost:8770
+echo    Cuando diga "Tutor listo", abri el link que
+echo    imprime abajo. Deja esta ventana abierta.
 echo.
-echo    Deja esta ventana abierta mientras uses el tutor.
 echo    Para cerrarlo:  Ctrl+C  o cerra la ventana.
+echo    Para reconfigurar:  node chat-server.js --reconfigure
 echo.
 echo   --------------------------------------------
-node chat-server.js
+node chat-server.js %*
 echo   --------------------------------------------
 echo    El server se detuvo o Node no esta instalado / en el PATH.
+echo    Hace falta Node.js 18 o mas nuevo:  https://nodejs.org
 pause

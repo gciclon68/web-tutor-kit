@@ -120,6 +120,15 @@ function needsSetup(cfg) {
   return !cfg || !cfg.provider;
 }
 
+/* Actualiza SOLO unos campos del config del home, sin arrastrar valores que
+   vinieron del entorno o de flags (p.ej. una API key que no queremos en disco). */
+function patchHome(patch) {
+  const p = configPath();
+  const current = readJSON(p) || {};
+  mergeInto(current, patch);
+  try { return save(current, p); } catch (e) { return null; }
+}
+
 function apiKeyOf(cfg, env) {
   env = env || process.env;
   const api = (cfg && cfg.api) || {};
@@ -225,4 +234,4 @@ async function runWizard(o) {
   return cfg;
 }
 
-module.exports = { DEFAULTS, resolve, load, save, configPath, needsSetup, apiKeyOf, runWizard };
+module.exports = { DEFAULTS, resolve, load, save, patchHome, configPath, needsSetup, apiKeyOf, runWizard };

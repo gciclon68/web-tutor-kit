@@ -60,14 +60,25 @@ function resolveBin(cfg) {
   return null;
 }
 
-function quoted(s) { return IS_WIN ? '"' + String(s).replace(/"/g, "") + '"' : s; }
+function quoted(s) { return '"' + String(s).replace(/"/g, "") + '"'; }
+
+/* En Windows el `claude` suele ser un .cmd, así que hace falta shell. Pasamos
+   UN string ya armado en vez de (cmd, args[]): con shell:true y un array Node
+   avisa DEP0190 porque no escapa los argumentos. Acá los escapamos nosotros. */
+function winCommand(bin, args) {
+  return [quoted(bin)].concat(args.map(function (a) {
+    return /[\s"&|<>^()]/.test(String(a)) ? quoted(a) : String(a);
+  })).join(" ");
+}
 
 function run(bin, args, stdinPayload, timeoutMs, cwd) {
   return new Promise(function (resolve, reject) {
     let child;
     try {
-      child = spawn(IS_WIN ? quoted(bin) : bin, args,
-                    { cwd: cwd, shell: IS_WIN, stdio: ["pipe", "pipe", "pipe"] });
+      child = IS_WIN
+        ? spawn(winCommand(bin, args), [], { cwd: cwd, shell: true, windowsHide: true,
+                                             stdio: ["pipe", "pipe", "pipe"] })
+        : spawn(bin, args, { cwd: cwd, stdio: ["pipe", "pipe", "pipe"] });
     } catch (err) {
       const e = new Error(err.message);
       e.userMessage = "No pude ejecutar `claude` (" + err.message + "). ¿Está instalado?";
@@ -122,7 +133,7 @@ function create(cfg, o) {
     if (req.model) args.push("--model", req.model);
     if (Array.isArray(req.extraDirs)) {
       req.extraDirs.forEach(function (d) {
-        try { if (d && fs.existsSync(d)) args.push("--add-dir", quoted(d)); } catch (e) {}
+        try { if (d && fs.existsSync(d)) args.push("--add-dir", d); } catch (e) {}
       });
     }
     if (req.sessionId) args.push("--resume", req.sessionId);
@@ -169,8 +180,9 @@ function create(cfg, o) {
     const fast = await checkFast();
     if (!fast.ok) return { ok: false, detail: fast.detail, model: "" };
     try {
-      const r = await ask({ message: "ping", sessionId: null, model: "", extraDirs: [], page: "/" });
-      return { ok: true, detail: "El CLI responde.", model: (cfg && cfg.models && cfg.models.default) || "" };
+      await ask({ message: "ping", sessionId: null, model: "", extraDirs: [], page: "/" });
+      const models = (cfg && cfg.models) || {};
+      return { ok: true, detail: "El CLI responde.", model: models[models.default] || models.default || "" };
     } catch (e) {
       return { ok: false, detail: e.userMessage || e.message, model: "" };
     }
