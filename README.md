@@ -14,8 +14,26 @@ En cualquier sesión de Claude Code:
 /plugin install tutor-ui@jolo-plugins
 ```
 
+**Alternativa interna (Allegro, sin salir a internet):**
+```
+/plugin marketplace add https://gitlab.allegromicro.com/gmonreal-claude-tools/web-tutor-kit
+/plugin install tutor-ui@jolo-plugins
+```
+
 > También desde una copia local: `/plugin marketplace add D:\ClaudeRepo\web-tutor-kit`.
 > `marketplace add` acepta una ruta local o una URL de git.
+
+## Contribuir (grupo interno `gmonreal-claude-tools`)
+
+El repo interno (`gitlab.allegromicro.com/gmonreal-claude-tools/web-tutor-kit`) es
+visible/clonable por cualquier cuenta de Allegro. `main` está protegido —
+nadie puede pushear ni mergear ahí directo, ni siquiera con permiso de
+Developer. El flujo para proponer un cambio:
+
+1. Forkeá el proyecto a tu propio namespace (el fork queda habilitado).
+2. Branch y commits en tu fork, como quieras.
+3. Abrí un Merge Request de tu branch hacia `main` del proyecto original.
+4. El owner del grupo lo revisa y lo mergea — es el único paso que no está abierto.
 
 Para desarrollo/prueba sin instalar, también podés cargarlo suelto:
 ```
